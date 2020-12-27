@@ -1,5 +1,7 @@
 # ldp-group-assignment-2
-partecipanti:
+
+Partecipanti:
+
 Matteo Salvalaio
 Fabio Ruscica
 Arjuan Jassal
