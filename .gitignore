@@ -5,7 +5,6 @@
 **/x84
 **/_build
 **/ignore
-*.sln
 *.exe
 *.vcxproj
 *.filters
