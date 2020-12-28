@@ -11,6 +11,7 @@
 // Tipi possibili di un treno
 enum class TrainType
 {
+	PLACEHOLDER,
 	REGIONALE,
 	ALTA_VELOCITA,
 	ALTA_VELOCITA_SUPER
