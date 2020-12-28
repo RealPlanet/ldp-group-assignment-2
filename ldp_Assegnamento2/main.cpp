@@ -1,6 +1,3 @@
-/*
-	Fabio Ruscica
-*/
 #include <iostream>
 
 int main()
