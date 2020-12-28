@@ -13,7 +13,7 @@
 class TrainTime
 {
 public:
-	bool register_timetable(std::string file_name);
+	bool register_timetable(std::string file_name = "");
 	TrainInfo get_train_info(int train_number) const;
 private:
 	std::map<int, TrainInfo> m_timetable;
