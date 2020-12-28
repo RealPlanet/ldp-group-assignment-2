@@ -17,7 +17,7 @@ public:
 	TrainInfo get_train_info(int train_number) const;
 private:
 	std::map<int, TrainInfo> m_timetable;
-	bool is_valid_time(const int time) const;
+	bool is_valid_time(const int& train_number, const int& time) const;
 };
 
 #endif

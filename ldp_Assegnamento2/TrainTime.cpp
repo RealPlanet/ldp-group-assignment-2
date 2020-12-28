@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 using std::ifstream;
 using std::ios;
@@ -13,6 +14,7 @@ using std::vector;
 using std::string;
 using std::stringstream;
 using std::pair;
+
 /*
     file_name == nome del file da aprire per leggere gli orari del treno
     restituisce vero se l'operazione va a buon fine altrimenti falso
@@ -54,9 +56,22 @@ bool TrainTime::register_timetable(std::string file_name)
         //Ora nello stringstream rimangono solo gli orari quindi itero e salvo ogni orario come intero nel vettore
         while (ss >> tempTrainTime)
         {
-            newTrainInfo.m_train_times.push_back(tempTrainTime);
+            if (is_valid_time(newTrainInfo.m_train_times.size(), tempTrainTime))
+            {
+                newTrainInfo.m_train_times.push_back(tempTrainTime);
+            }
+            else // Il tempo inserito non è valido quindi calcolo il tempo minimo per arrivare alla stazione
+            {
+                /* 
+                    TODO :: Query StationManager class and ask distance of station newTrainInfo.m_train_times.size() from newTrainInfo.n_starting_station
+                    Then calculate time based on train type   
+                */
+                float actualStationDistance;
+                int actualTrainSpeed; // TODO :: Query Train class
+                newTrainInfo.m_train_times.push_back(actualStationDistance / actualTrainSpeed);
+            }
+            
         }
-
         /*
             Inserisco la coppia che associa il numero del treno alle sue informazioni nella mappa,
             come bonus la mappa è ordinata rispetto alle chiavi
@@ -70,13 +85,24 @@ bool TrainTime::register_timetable(std::string file_name)
 
 TrainInfo TrainTime::get_train_info(int train_number) const
 {
-    // TODO :: Boundary check
+    // TODO :: Boundary check ??
     TrainInfo requested_info = m_timetable.at(train_number);
     return requested_info;
 }
 
-bool TrainTime::is_valid_time(const int time) const
+bool TrainTime::is_valid_time(const int& train_number, const int& time) const
 {
-    // TODO implement function and use it in register_timetable per controllare la corretteza degli orari
+    // Verifico se [0000, 2400]
+    if (time < 0000 || time > 2400)
+    {
+        return false;
+    }
+
+    TrainInfo info = m_timetable.at(train_number);
+    int desiredStartTime = info.m_train_times.at(0);
+    int desiredArrivalTime = time; 
+    int actualTrainSpeed; // Query Train class for speed info with info.m_train_type
+    //if()
+
     return true;
 }
