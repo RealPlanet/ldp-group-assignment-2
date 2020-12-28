@@ -11,7 +11,7 @@
 // Tipi possibili di un treno
 enum class TrainType
 {
-	PLACEHOLDER,
+	NOT_A_TRAIN,
 	REGIONALE,
 	ALTA_VELOCITA,
 	ALTA_VELOCITA_SUPER
@@ -39,11 +39,19 @@ struct TrainInfo
 	std::vector<int> m_train_times;
 };
 
+/*
+struct StationInfo
+{
+	std::string m_station_name;
+	int n_dist_from_origin;
+};
+
+
 // Piccola struttura per agevolare la tesione dei tempi per i treni
 struct Time
 {
 	int hour;
 	int minute;
 };
-
+*/
 #endif // !generics_h
