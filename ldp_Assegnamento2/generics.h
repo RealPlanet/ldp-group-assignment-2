@@ -7,6 +7,7 @@
 /*
 	Header generico che contiene svariate strutture e enum usate in tutto il progetto
 */
+
 /*
 	START OF ENUMS
 */
