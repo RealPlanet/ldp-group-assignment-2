@@ -54,6 +54,17 @@ enum class TrainRequest
 };
 
 /*
+	Tipi di segnale che la stazione può inviare ad un treno
+*/
+enum class StationSignal
+{
+	ARRIVAL_ALLOW,
+	ARRIVAL_DENY,
+	DEPARTURE_ALLOW,
+	DEPARTURE_DENY
+};
+
+/*
 	END OF ENUMS
 */
 
