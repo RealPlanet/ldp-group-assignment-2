@@ -7,7 +7,9 @@
 /*
 	Header generico che contiene svariate strutture e enum usate in tutto il progetto
 */
-
+/*
+	START OF ENUMS
+*/
 // Tipi possibili di un treno
 enum class TrainType
 {
@@ -30,6 +32,30 @@ enum class TrackStatus
 	OCCUPIED,
 	FREE
 };
+
+/*
+	Direzioni che i treni possono avere rispetto ad una stazione generica
+*/
+enum class TrainDirection
+{
+	BACKWARD,
+	FORWARD
+};
+
+/*
+	Tipi di richiesta che un treno può fare ad una stazione
+	STOP = Treno si ferma per gestire i passeggeri
+	TRANSIT = Treno deve passare senza fermarsi
+*/
+enum class TrainRequest
+{
+	STOP,
+	TRANSIT
+};
+
+/*
+	END OF ENUMS
+*/
 
 // Struttura usata per contenere tutti gli orari e le informazione necessarie per un treno
 struct TrainInfo
