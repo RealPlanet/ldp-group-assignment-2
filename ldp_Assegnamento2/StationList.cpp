@@ -1,5 +1,7 @@
-#include "StationList.h"
+// @author Matteo Salvalaio, 1216361
 
+#include "StationList.h"
+#include <iostream>
 
 StationList::StationNode* StationList::StationNode::getNext() {
 	if(hasNext()) return next;
@@ -55,6 +57,7 @@ void StationList::addFirst(Station* station) {
 		first->setPrev(node);
 	}
 	first = node;
+	size++;
 	}
 
 void StationList::addLast(Station* station) {
@@ -64,6 +67,7 @@ void StationList::addLast(Station* station) {
 		last->setNext(node);
 	}
 	last = node;
+	size++;
 	}
 
 void StationList::addBefore(Station* station, Station* beforeStation) {
@@ -74,6 +78,7 @@ void StationList::addBefore(Station* station, Station* beforeStation) {
 			node->setPrev(index->getPrev());
 			index->getPrev()->setNext(node);
 			index->setPrev(node);
+			size++;
 		}
 	}
 	throw std::invalid_argument("not in the list"); // no next/prev
@@ -87,6 +92,7 @@ void StationList::addAfter(Station* station, Station* afterStation) {
 			node->setNext(index->getNext());
 			index->getNext()->setPrev(node);
 			index->setNext(node);
+			size++;
 		}
 	}
 	throw std::invalid_argument("not in list!"); // no next/prev
@@ -98,7 +104,13 @@ Station* StationList::remove(Station* station) {
 			index->getNext()->setPrev(index->getPrev());
 			index->getPrev()->setNext(index->getNext());
 			delete index;
+			size--;
 		}
 	}
 	throw std::invalid_argument("notinlist!"); // no next/prev
 }
+
+bool StationList::isEmpty() {
+		if (size == 0) return true;
+		return false;
+	}
