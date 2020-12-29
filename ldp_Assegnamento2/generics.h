@@ -19,6 +19,15 @@ enum class TrainType
 	ALTA_VELOCITA_SUPER
 };
 
+/*
+	Tipi possibili di stazioni
+*/
+enum class StationType
+{
+	LOCAL,
+	MAIN
+};
+
 // Tipi possibili di un binario
 enum class TrackType
 {
