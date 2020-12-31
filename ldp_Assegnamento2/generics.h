@@ -4,6 +4,7 @@
 #ifndef generics_h
 #define generics_h
 #include <vector>
+#include <string>
 /*
 	Header generico che contiene svariate strutture e enum usate in tutto il progetto
 */
@@ -86,13 +87,14 @@ struct TrainInfo
 	std::vector<int> m_train_times;
 };
 
-/*
 struct StationInfo
 {
 	std::string m_station_name;
-	int n_dist_from_origin;
+	float m_prev_station_distance;
+	float m_next_station_distance;
 };
 
+/*
 
 // Piccola struttura per agevolare la tesione dei tempi per i treni
 struct Time
