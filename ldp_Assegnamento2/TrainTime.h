@@ -13,11 +13,13 @@
 class TrainTime
 {
 public:
-	bool register_timetable(std::string file_name = "");
+	bool register_timetable(const std::string file_name, const TrainLine& line);
 	TrainInfo get_train_info(int train_number) const;
+	int get_train_number() const;
+	void update_train_time(const int train_number, const int station, const int newTime, bool isDelay);
 private:
 	std::map<int, TrainInfo> m_timetable;
-	bool is_valid_time(const int& train_number, const int& time) const;
+	int is_valid_time(const int& train_number, const int& time, const TrainType& train_type, const std::vector<int>& timetable, const TrainLine& line) const;
 };
 
 #endif
