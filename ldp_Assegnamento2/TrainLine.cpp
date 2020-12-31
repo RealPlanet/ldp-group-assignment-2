@@ -66,3 +66,5 @@ bool TrainLine::is_number(const std::string& string) const
     // se il primo carattere è un numero stoi è in grado di convertirlo a numero
     return isdigit(string[0]);
 }
+
+
