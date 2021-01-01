@@ -3,283 +3,233 @@
 #ifndef STATION_H
 #define STATION_H
 
-#include <queue>
 #include <string>
+#include <iostream>
+#include "TrainPQ.h"
+#include "Track.h"
+#include "generics.h"
+
+/************************************************
+ *  Lo struct contiene al suo interno le liste di attesa
+ *  dei treni alle stazioni, e l'elenco e il tipo di
+ *  binari per ogni senso di marcia
+ ***********************************************/
+ 
+//Invariants
+// - lastTime >= -1
+// - nextTime >= -1
+
+struct LineWay {
+	explicit LineWay()                //Default Constructor
+	: lastTime{-1}, lastTrain{nullptr} {}
+	
+	Train* lastTrain;                 //Last train to depart
+	int lastTime;                     //Last train departure time
+	int nextTime;                     //Next train departure time forward
+	
+	ArrivalsTrainPQ arrivals;         //Priority Queue of arrivals
+	DeparturesTrainPQ departures;     //Priority Queue of departures
+	std::vector<Track*> tracks;       //List of tracks of the station
+};
 
 //Invariants
 // - distance >= 0
 // - stationSpeedLimit > 0
-// - stationType = StationType.MAIN || StationType.LOCAL
+// - aheadTolerace >= 0
+// - stationType must be initialized
 
-struct LineWay {
-	std::priority_queue<Train, std::vector<Train>, std::greater<int>> arrivals;			//Priority Queue of arrivals
-	std::priority_queue<Train, std::vector<Train>, std::greater<int>> transits;			//Priority Queue of transits
-	std::priority_queue<Train, std::vector<Train>, std::greater<int>> departures;		//Priority Queue of departures
-	std::vector<Track> tracks;															//List of tracks of the station
-}
+/************************************************
+ *  Interfaccia comune delle stazioni.
+ *  La classe gestisce se stessa come un nodo di una lista
+ *  Dato che le stazioni locali e principali differiscono
+ *  di poco tra di loro, la maggior parte dei metodi,
+ *  comuni a tutte e due le classi derivate sono definiti
+ *  qui.
+ *  Il costruttore di copia e l'assegnamento di copia
+ *  sono stati disabilitati in quanto non è necessario
+ *  creare una copia della classe station in questo progetto.
+ ***********************************************/
 
 class Station {
 public:
-	explicit Station(int d = 0, std::string l = "Unnamed", int s = 80)		//Default Constructor
-	: distance{d}, label{l}, stationSpeedLimit{s} {}
+									//*** Essential Operations ***
 	
-	~Station() = default;													//Distruttore
+	explicit Station(int d = 0, std::string l = "Unnamed", StationType sType = StationType::MAIN)   //Default Constructor
+	: distance{d}, label{l}, next{nullptr}, prev{nullptr}, stationType{sType} {
+		forward = new LineWay();
+		backward = new LineWay();
+		}
 	
-	Station(const Station& node) = delete;									//Copy Constructor
-	Station& operator=(const Station& node) = delete;						//Copy Assignment
-	Station(Station&& node) = default;										//Move Constructor
-	Station& operator=(Station&& node) = default;							//Move Assignment
+	~Station();                                                                     //Destructor
 	
-	getDistance() const {return distance;}									//Return the distance of the station from the origin
-	std::string getLabel() const {return label;}							//Return the name of the station
+	Station(const Station& station) = delete;                                       //Copy Constructor
+	Station& operator=(const Station& station) = delete;                            //Copy Assignment
+	Station(Station&& station) = default;                                           //Move Constructor
+	Station& operator=(Station&& station) = default;                                //Move Assignment
 	
-	virtual void incomingTrain(Train train, TrainRequest request) = 0;		//Receives the call from the train arriving at the station
-	virtual void outgoingTrain(Train train) = 0;							//Receives the call from the train that is leaving the station
-	void readyTrain(Train train);											//Receives the call from the train that is ready to leave the station
+									//*** Node Modification/Inspection ***
 	
-	void clearDeparturesConflict(LineWay& way, Train train);				//Prevents priority changes from causing conflicts between departures
+	void setNext(Station* station);                                                 //Set the next station
+	void setPrev(Station* station);                                                 //Set the previous station
+	
+	Station* getNext() const;                                                       //Return the next station, if it exist
+	Station* getPrev() const;                                                       //Return the previous station, if it exist
+	
+	bool hasNext() const {return next!=nullptr;}                                    //Check if this station has a subsequent station
+	bool hasPrev() const {return prev!=nullptr;}                                    //Check if this station has a precedent station
+	bool isFirst(Station* station) const {return prev==nullptr;}                    //Check if the station is the first
+	bool isLast(Station* station) const {return next==nullptr;}                     //Check if the station is the last
+	
+									//*** Function Operations ***
+	
+	getDistance() const {return distance;}                                          //Return the distance of the station from the origin
+	std::string getLabel() const {return label;}                                    //Return the name of the station
+	StationType getStationType() const {return stationType;}                        //Return the station type
+	
+	virtual void eventIncomingTrain(Train* train, const TrainRequest request) = 0;  //Receives the call from the train arriving at the station
+	void eventOutgoingTrain(Train* train);                                          //Receives the call from the train that is ready to leave the station
+	void eventDepartedTrain(int time, LineWay* way);                                //Tell the train to depart from the station and update the departure queue
+	
+	void clock(int time);                                                           //Check arrivals and departures every minute of the simulation
+									//*** Exception Management ***
+	
+	class OutOfBoundsException : public std::exception {};                          //Exception of the class Station
+	class FreeTrackNotFoundException : public std::exception {};                    //Exception of the class Station
+	class ImpossibleDeparturesException : public std::exception {};                 //Exception of the class Station
+	class InvalidStationDistance : public std::exception {};                        //Exception of the class Station
+	class InvalidFunctionCallException : public std::exception {};                  //Exception of the class Station
+	class InvalidTimeException : public std::exception {};                          //Exception of the class Station
 	
 protected:
-	const int distance;														//Distance from origin
-	const std::string label;												//Name of the station
 	
-	int lastTime;															//Last train departure time
-	int lastTrain;															//Last train to depart
+	Station* next;                                                                  //Next station in the line
+	Station* prev;                                                                  //Previous station in the line
 	
-	const int stationSpeedLimit;											//Speed limit 10km around the station
+	const StationType stationType;                                                  //Type of station
 	
-	LineWay forward;														//Priority queues and tracks for train coming from the first station
-	LineWay backward;														//Priority queues and tracks for train going to the first station
+	const int distance;                                                             //Distance from origin
+	const std::string label;                                                        //Name of the station
 	
-	void callArrivals(LineWay& way);										//Manages and allow trains to arrive at the standard track of the station
-	void callDepartures(LineWay& way);										//Manages and allow trains to depart from the station
-
-	Track getTrack(TrackType type, LineWay& way);							//Return the first free track;
-	bool isTrackFree(TrackType type, LineWay& way);							//Check is there is at least one track free
+	const int stationSpeedLimit = 80;                                               //Speed limit 10km around the station
+	const int aheadTolerace = 15;                                                   //Limit of tolerance for early trains
+	
+	LineWay* forward;                                                               //Priority queues and tracks for train coming from the first station
+	LineWay* backward;                                                              //Priority queues and tracks for train going to the first station
+	
+	void callArrivals(LineWay* way);                                                //Manages and allow trains to arrive at the standard track of the station
+	virtual void callDepartures(LineWay* way) = 0;                                  //Manages and allow trains to depart from the station
+	
+	Track* getTrack(TrackType type, LineWay* way) const;                            //Return the first free track;
+	bool isTrackFree(TrackType type, LineWay* way) const;                           //Check is there is at least one track free
+	
 };
+
+/************************************************
+ *  Classi derivate di Station.
+ ***********************************************/
 
 class MainStation : public Station {
 public:
-	explicit Station(int d = 0, std::string l = "Unnamed", int s = 80)				//Default Constructor
-	: distance{d}, label{l}, stationSpeedLimit{s} {
-		forward.tracks.push_back(Track(STANDARD));
-		forward.tracks.push_back(Track(STANDARD));
-		backward.tracks.push_back(Track(STANDARD));
-		backward.tracks.push_back(Track(STANDARD));
-	}
+	explicit MainStation(int d = 0, std::string l = "Unnamed");                      //Default Constructor
+	void eventIncomingTrain(Train* train, TrainRequest request) override;            //Implementation of eventIncomingTrain from Station
 	
-	void incomingTrain(Train train, TrainRequest request);							//Implementation of incomingTrain from Station
-	void outgoingTrain(Train train);												//Implementation of outcomingTrain from Station
+	class InvalidRequestException : public std::exception {};                        //Exception of the class MainStation
+	
+private:
+	void callDepartures(LineWay* way) override;
 };
 
 class LocalStation : public Station {
 public:
-	explicit Station(int d = 0, std::string l = "Unnamed", int s = 80)				//Default Constructor
-	: distance{d}, label{l}, stationSpeedLimit{s} {
-		forward.tracks.push_back(Track(STANDARD));
-		forward.tracks.push_back(Track(STANDARD));
-		backward.tracks.push_back(Track(STANDARD));
-		backward.tracks.push_back(Track(STANDARD));
-		forward.tracks.push_back(Track(TRANSIT));
-		backward.tracks.push_back(Track(TRANSIT));
-	}
+	explicit LocalStation(int d = 0, std::string l = "Unnamed");                    //Default Constructor
+	void eventIncomingTrain(Train* train, TrainRequest request) override;           //Implementation of eventIncomingTrain from Station
 	
-	void callTransits(LineWay& way);												//Manages and allow trains to arrive at the transit track of the station
-	
-	void incomingTrain(Train train, TrainRequest request);							//Implementation of incomingTrain from Station
-	void outgoingTrain(Train train);												//Implementation of outcomingTrain from Station
+private:
+	void callDepartures(LineWay* way) override;                                     //Implementation of callDepartures from Station
 };
 
 #endif
 
-//attenzione nel conto del tempo. i treni sul binario transit non hanno il vincolo dei 80km/h
-
-
-/*
-void readyTrain(Train train) {
-	LineWay& way;
-	if (train.getTrainDirection() == FORWARD) way = forward;
-	else way = backward;
-	way.departures.push(train);
-	callDepartures(way);
-}
-
-
-
-	
-	callArrivals(LineWay& way) {
-		if (way.arrivals.size() != 0) {
-			if (isTrackFree(STANDARD, way) && way.arrivals.top.getEstimatedTimeofArrival() - Runtime.getCurrentTime() < 15) {
-				Track track getTrack(STANDARD, way);
-				callTrain(track);
-				track.setTrackStatus(OCCUPIED);
-				way.arrivals.pop();
-			}
-		}
-	
-	void incomingTrain(Train train, TrainRequest request) {
-		LineWay& way;
-		if (train.getTrainDirection() == FORWARD) way = forward;
-		else way = backward;
-		if (request == STOP) {
-			if (isTrackFree(STANDARD, way) && (train.getEstimatedTimeofArrival() - Runtime.getCurrentTime() < 15){
-				Track track getTrack(STANDARD, way);
-				callTrain(track);
-				track.setTrackStatus(OCCUPIED);
-				return;
-			}
-			else {
-				way.arrivals.push(train);
-				callTrain(getTrack(PARKING, way));//come fa planet il parking????
-				return;
-			}
-		}
-		throw std::invalid_argument("invalid status :( ");//invalid status
-	}
-	
-	
-	noConflictAdd(LineWay& way, Train train) {
-		if (way.departures.size() != 0) {
-			Train oldFirst = way.departures.top();
-			way.departures.push(train);
-			if (train == way.departures.top()) {
-				oldFirst.callTrain("STA FERMO! non parti più!");
-				callDepartures(LineWay& way);
-			}
-		}
-		way.departures.push(train);
-		callDepartures(LineWay& way);
-	}
-	
-	callDepartures(LineWay& way) {
-		if (way.departures.size() != 0) {
-			
-
-			int a = lastDeparturesTrain.getMaxSpeed()*(abs(getNextStation.getDistance-distance)-10) + 5*stationSpeedLimit;
-			int b = way.departures.top().getMaxSpeed()*(abs(getNextStation.getDistance-distance)-20) + 5*stationSpeedLimit;
-			int c = a-b
-			way.departures.top().callTrain("Parti a" lastDeparturesTime+c) //ovvio che se actual time > di sta roba parti comunque!
-			}
-	}
-	
-	//DA FAR ACNORA
-	//il treno ti segnala la partenza!!!! il treno ti segnala che è pronto!!!
-	
-	void outcomingTrain(Train train) {
-		lastDeparturesTime = getCurrentTime();
-		lastDeparturesTrain = train;
-		LineWay& way;
-		if (train.getTrainDirection() == FORWARD) way = forward;
-		else way = backward;
-		way.departures.pop();
-		callDepartures(way);
-	}
-	
-	
-			
-		
-		
-		
-		
-	
-private:
-
-	int lastDeparturesTime;
-	int lastDeparturesTrain;
-
-	int distance;
-	std::string label;
-	
-	const int stationSpeedLimit;
-	
-	LineWay forward;
-	LineWay backward;
-	
-	Track getTrack(TrackType type, LineWay& way) {
-		for (Track track : way) if (track.getTrackType() == type && track.getTrackStatus() == FREE) return track;
-		throw std::invalid_argument("Tnot found :( "); //EMPTY
-	}
-	
-	bool isTrackFree(TrackType type, LineWay& way) {
-		for (Track track : way) if (track.getTrackType() == type && track.getTrackStatus() == FREE) return true;
-		return false;
-	}
-	
-};
-
-
-
-
-	//Track incomingTrain(Train t); //il treno in arrivo chiama la stazione
-	//SE FERMATA
-	//controllo se il treno è in anticipo/i binari sono occupati
-	//se si, aggiungo a Arrivals() e rispondo con le informazioni (Il parcheggio è una track modificata?)
-	//SE TRANSITO (Solo LocalStation derivata)
-	//aggiungo a Transit() e rispondo con le informazioni (Il parcheggio è una track modificata?)
-	
-	
-	//chiamata cadenziale per date a Transit e Arrival il via libera
-	//(da capire come fare questa cosa!!) ---> Delega al treno?
-	//chiamata quando un treno viene rimosso da Departures
-	
-	//quando un binario standard è libero, il primo di Arrivals parte
-	//quando un binario transit è libero il primo di transit parte ---> si fermerà al binario.
-	//in entrambi i casi, o al loro arrivo, o dopo 5 min dal loro arrivo verranno aggiunti a departures.
-	//(da capire come fare questa cosa!!) ---> Delega al treno?
-	
-	//chiamata quando departures viene modificata!!!
-	//quando aggiunti a departures se il primo in lista viene modificato, notifico il vecchio primo che è di nuovo in IDLE, ed il nuovo primo
-	//gli dico dopo quando potrà partire
-
-
-// Date due stazioni A -----> B distanti 50 Km
-
-//Tempi di percorrenza complessiva Fermata -----> Fermata
-//Serve che un treno arriva e quello dietro sia a 10 Km dalla stazione
-
-//Treno Regionale ---> 5/80 + X-10/160 + 5/80 --> 7.5 + 15 = 22:30 minuti
-//Treno AltaVeloc ---> 5/80 + X-10/240 + 5/80 --> 7.5 + 10 = 17:30 minuti
-//Treno Altissima ---> 5/80 + X-10/300 + 5/80 --> 7.5 + 8  = 15:30 minuti
-
-//Appena partito un Treno Regionale i tempi di attesa sono
-
-//Treno Regionale STAZIONE ---> 5/80 + 5/160 ---> 3.75 + 1.875 = Parte dopo 5:27.5 minuti dal Regionale (Il regionale non guadagna spazio nel tempo)
-//Treno AltaVeloc STAZIONE ---> (per 40km) 5/80 + 35/240 ---> 3.75 + 8.75 = 12:30 minuti ------> Parte dopo 10:00 dal Regionale
-//Treno Altissima STAZIONE ---> (per 40km) 5/80 + 35/300 ---> 3.75 + 7    = 10:45 minuti ------> Parte dopo 11:45 dal Regionale
-
-//Appena partito un Treno AltaVeloc i tempi di attesa sono
-
-//Treno Regionale STAZIONE ---> 5/80 + 5/240 ---> 3.75 + 1.25 = Parte dopo 5:00 minuti dal AltaVeloc (Il regionale non guadagna spazio nel tempo)
-//Treno AltaVeloc STAZIONE ---> 5/80 + 5/240 ---> 3.75 + 1.25 = Parte dopo 5:00 minuti dal AltaVeloc (Il altaveloc non guadagna spazio nel tempo)
-//Treno Altissima STAZIONE ---> (per 40km) 5/80 + 35/300 ---> 3.75 + 7    = 10:45 minuti ------> Parte dopo 6:45 dal Altaveloc
-
-//Appena partito un Treno Altissimo i tempi di attesa sono
-
-//Treno Regionale STAZIONE ---> 5/80 + 5/300 ---> 3.75 + 1    = Parte dopo 4:45 minuti dal Altissimo (non guadagna spazio nel tempo)
-//Treno AltaVeloc STAZIONE ---> 5/80 + 5/300 ---> 3.75 + 1    = Parte dopo 4:45 minuti dal Altissimo (non guadagna spazio nel tempo)
-//Treno Altissima STAZIONE ---> 5/80 + 5/300 ---> 3.75 + 1    = Parte dopo 4:45 minuti dal Altissimo (non guadagna spazio nel tempo)
-
-//Tempi di percorrenza complessiva Waiting/Fermata -----> Fermata
-//Serve che un treno arriva e quello dietro sia a 10 Km dalla stazione
-
-//Appena partito un Treno Regionale i tempi di attesa sono
-
-//Treno AltaVeloc WAITING ---> (per 40+5km) 45/240 ---> = 11:15 minuti ------> Parte dopo 11:15 dal Regionale
-//Treno Altissima WAITING ---> (per 40+5km) 45/300 ---> =  9:00 minuti ------> Parte dopo 13:30 dal Regionale
-
-//Tempi di percorrenza complessiva Waiting/Waiting-Fermata -----> Fermata
-//Serve che un treno arriva e quello dietro sia a 10 Km dalla stazione
-
-//Appena partito un Treno AltaVeloc i tempi di attesa sono
-
-//Treno AltaVeloc WAITING ---> 10/240 ---> = 2:30 minuti (non guadagna spazio nel tempo)
-//Treno Altissima WAITING ---> (5/80 + 55/240) - (45/300) ---> 3.75+13.75-9 = 8:30 minuti ------> Parte dopo 8:30
-//Treno Regionale STAZIONE ---> 15/240 ---> = 3:45 minuti (non guadagna spazio nel tempo)
-
-//Appena partito un Treno Altissima i tempi di attesa sono
-
-//Treno AltaVeloc WAITING ---> 10/300 ---> = 2:00 minuti (non guadagna spazio nel tempo)
-//Treno Altissima WAITING ---> 10/300 ---> = 2:00 minuti (non guadagna spazio nel tempo)
-//Treno Regionale STAZIONE ---> 15/300 ---> = 3:00 minuti (non guadagna spazio nel tempo)
-
-//Ora pensando all'arrivo, le partenze fanno stimate come se il treno skippa!
+/************************************************
+ *  Informazioni e gestione delle partenze dei treni dalle stazioni
+ * 
+ *  La stazione calcolerà automaticamente il tempo necessario affinchè 
+ *  il treno successivo (A) arrivi a 15km dalla stazione successiva,
+ *  quando il treno precedente (B) è ad esattamente 5km dalla stazione successiva
+ *  (limite dei 10km di distanza, esente negli ultimi 5km)
+ *  in modo che il treno successivo (A) possa viaggiare sempre alla velocità massima consentita
+ * 
+ *  Tramite questo sistema, i ritardi dei treni non avverrano mai a causa di rallentamenti lungo
+ *  la tratta, ma a causa di una partenza ritardata.
+ *  
+ *  La presenza di un numero maggiore di treni di quanto la stazione possa gestire / treni eccessivamente in
+ *  anticipo (per non occupare eccessivamente un binario) vengono indirizzati al parcheggio dove vengono messi
+ *  in lista di attesa in base alla priorità e al loro ritardo/anticipo attuale per poter andare in stazione.
+ *  Il programma punta a prioritizzare la presenza di numerosi lievi ritardi, al posto di singoli grandi ritardi.
+ * 
+ *  I treni in stazione in attesa di partire e i treni al parcheggio in attesa di transitare condividono la stessa
+ *  lista di attesa.
+ *  
+ *                                             un treno è in arrivo
+ *                                                     |
+ *                                                     |
+ *                           Transito ---------- cosa richiede? ----------Fermata
+ *                              |                                            |
+ *                              |                                            |
+ *                     mandato al parcheggio                         i binari sono occupati?
+ *                aggiunto alla lista per partire          NO ------ il treno è in anticipo? ----- SI
+ *                              |                          |                                        |
+ *                      arriva al parcheggio        mandato al binario    <-------         mandato al parcheggio
+ *                              |                          |                     |                  |
+ *                              |                          |                     |                  |
+ *                              |                     dopo 5 minuti              |     il treno riceve un binario al
+ *                              |             aggiunto alla lista per partire    ------        quale recarsi
+ *                              |                          |
+ *                              |                          |
+ *                       il treno riceve l'autorizzazione a partire
+ * 
+ * 
+ *  Nel caso ideale i treni ricevono l'autorizzazione a partire / il binario al quale recarsi prima ancora di
+ *  arrivare al parcheggio. In tal caso ignorano l'ordine precedente e partono il prima possibile.
+ *  
+ *  C'è la possibilità che mentre un treno (A) è in arrivo a ~5-10km alla stazione
+ *  nello stesso momento ad un treno (B) fermo al parcheggio sia data la disponibilità di andare
+ *  al binario di transito per continuare la sua corsa. In questo caso i due treni per un breve periodo
+ *  saranno a distanza minore di 10km su una tratta senza limite di velocità.
+ * 
+ *                <------ < 10km ------>
+ *  -----Treno (A)------------|---------Treno(B)---------|========|
+ *                            |                           Stazione
+ *                       Parcheggio
+ * 
+ *  Si è deciso di ignorare questo problema in quanto quando questa eventualità accade
+ *  il treno (A) ha già sicuramente ricevuto ordine di andare al parcheggio/andare ad un binario standard.
+ *  Quindi i due treni non si incontreranno mai, in quanto i loro percorsi seguono tratte separate.
+ * 
+ * 
+ * 
+ * 
+ *  Tabella dei tempi di attesa in partenza ipotetici tra due stazioni [A] -----> [B] distanti 50 Km
+ * 
+ *  Tempi di percorrenza complessiva [Fermata] -----> [5km dalla stazione successiva]
+ *      Treno Regionale ---> 5/80 + X-10/160 --> 3.75 + 15 = 18:45 minuti
+ *      Treno AltaVeloc ---> 5/80 + X-10/240 --> 3.75 + 10 = 13:45 minuti
+ *      Treno Altissima ---> 5/80 + X-10/300 --> 3.75 + 8  = 11:45 minuti
+ *  Tempi di percorrenza complessiva [Transito] -----> [5km dalla stazione successiva]
+ *      Treno Regionale ---> X-5/160 --> 16.875 = 16:52.5 minuti		(Questo caso non dovrebbe verificarsi mai)
+ *      Treno AltaVeloc ---> X-5/160 --> 11.25  = 11:15   minuti
+ *      Treno Altissima ---> X-5/160 --> 9      =  9:00   minuti
+ * 
+ *  Appena partito un [Treno Regionale] i tempi di attesa di treni in [Fermata] sono
+ *      Treno Regionale ---> 5/80 + 5/160 ---> 3.75 + 1.875 = Parte dopo 5:27.5 minuti                      (non guadagna spazio nel tempo)
+ *      Treno AltaVeloc ---> (per 40km) 5/80 + X-20/240 ---> 3.75 + 7.5 = 11:15 minuti ------> Parte dopo 7:30 dal Regionale
+ *      Treno Altissima ---> (per 40km) 5/80 + X-20/300 ---> 3.75 + 6   =  9:45 minuti ------> Parte dopo 9:00 dal Regionale
+ *  Appena partito un [Treno Alta Velocità] i tempi di attesa di treni in [Fermata] sono
+ *      Treno Regionale/AltaVeloc ---> 5/80 +  5/240 ---> 3.75 + 1.25 = Parte dopo 5:00 minuti dal AltaVeloc (non guadagna spazio nel tempo)
+ *      Treno Altissima           ---> 5/80 + X-20/300 ---> 3.75 + 6    = 9:45 minuti ------> Parte dopo 7:00 dal Altaveloc
+ *  Appena partito un [Treno Alta Velocità Super] i tempi di attesa di treni in [Fermata] sono
+ *      Treno Regionale/AltaVeloc/Altissima ---> 5/80 + 5/300 ---> 3.75 + 1  = Parte dopo 4:45 minuti dal Altissimo (non guadagna spazio nel tempo)
+ * 
+ * I conteggi differiscono se i treni devono transitare, data la mancanza del limite di velocità e la loro attesa al parcheggio
+ * 
+ ************************************************/ 
