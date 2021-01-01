@@ -24,34 +24,52 @@ bool TrainLine::register_stations(std::string file_name)
         return false;
     }
 
-    vector<string> tempFileLines = {};
     string newLine = "";
+    
+    //Station* originStation = new Station(station_name, 1, 0);
 
+    bool isOriginStation = true; //Con questo bool posso includere la prima stazione (caso degenere con un solo dato nel loop)
     while (getline(stations, newLine)) //Prendi una riga dal file
     {
         stringstream ss{ newLine }; //Converti la ringa in uno stream
-        string tempString = "";
+        string tempString;
         string station_name = "";
-        int distanza_da_origine = 0;
-
+        int station_type = 1;
+        double distanza_da_origine = 0.0f;
         // Station* newStation = new Station();
         //Ora nello stringstream rimangono solo gli orari quindi itero e salvo ogni orario come intero nel vettore
         while (ss >> tempString)
         {
-            if (is_number(tempString)) //Se è un numero allora è per forza la distanza quindi convertila a numero
+            //Nella prima riga del fila c'è solo il nome della stazione principale, allora tutto è un nome
+            if (is_number(tempString) && !isOriginStation) //Se è un numero allora è per forza la distanza quindi convertila a numero
             {
-                //Questo è la distanza della stazione dall'origine
-                int distanza = stoi(tempString);
+                // Primo numero è il tipo di stazione 0 o 1
+                station_type = stoi(tempString);
+                if (ss >> tempString && is_number(tempString))
+                {
+                    distanza_da_origine = stoi(tempString);
+                }
+                else
+                {
+                    throw InvalidStationDistance();
+                }
             }
             else
             {
                 //Tutte le stringe fanno parte del nome della stazione
-                
+                // TODO :: Rimuovere ultimo spazio quando si trova la distanza
                 station_name += tempString + " ";
             }
         }
-        // TODO :: Rimuovere ultimo spazio quando si trova la distanza
-        // TODO :: Aggiungere la stazione alla lista con le sue proprieta
+        if (isOriginStation)
+        {
+            //Station* originalStation = new Station(station_name, station_type, distanza_da_origine);
+            //m_station_list = StationList(originalStation);
+        }
+
+        isOriginStation = false; //Ora riprendiamo comportamento normale
+        //Station* newStation = new Station(station_name, station_type, distanza_da_origine);
+        //m_station_list.addLast(newStation);
     }
 
     stations.close(); //Chiudo lo stream e rilascio le risorce occupate
