@@ -33,7 +33,6 @@ bool TrainTime::register_timetable(const std::string file_name, const TrainLine&
         return false;
     }
     
-    vector<string> tempFileLines = {};
     string newLine = "";
 
     while (getline(timetable, newLine)) //Prendi una riga dal file
