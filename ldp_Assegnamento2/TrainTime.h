@@ -19,8 +19,17 @@ public:
 	void update_train_time(const int train_number, const int station, const int newTime, bool isDelay);
 private:
 	std::map<int, TrainInfo> m_timetable;
-	int is_valid_time(const int& train_number, const int& time, const TrainType& train_type, const std::vector<int>& timetable, const TrainLine& line) const;
+	int is_valid_time(const int& train_number, const int& starting_station, const int& time, const TrainType& train_type, const std::vector<int>& timetable, const TrainLine& line) const;
 };
+
+/*
+*  Converti tempo militare (XXXX) in uno struct che divide ora e minuti
+*/
+static Time convert_mil_to_time(const int time);
+/*
+*  Converti struct Time in orario militare
+*/
+static int convert_time_to_mil(Time time);
 
 #endif
 

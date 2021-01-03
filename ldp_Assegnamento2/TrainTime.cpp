@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <string>
 #include "TrainLine.h"
 #include "TrainTime.h"
 
@@ -56,18 +57,17 @@ bool TrainTime::register_timetable(const std::string file_name, const TrainLine&
         newTrainInfo.n_starting_station = trainStartingStation;
         newTrainInfo.m_train_times.push_back(trainFirstDepartureTime);
         //Ora nello stringstream rimangono solo gli orari quindi itero e salvo ogni orario come intero nel vettore
-        while (ss >> tempTrainTime)
+        for (int i = 0; ss >> tempTrainTime; i++)
         {
-            int actualTime = is_valid_time(trainNumber, tempTrainTime, newTrainInfo.m_train_type, newTrainInfo.m_train_times, line);
+            int actualTime = is_valid_time(trainNumber, trainStartingStation, tempTrainTime, newTrainInfo.m_train_type, newTrainInfo.m_train_times, line);
             newTrainInfo.m_train_times.push_back(actualTime); 
         }
 
-        /*while (newTrainInfo.m_train_times.size() /* < TrainLine.get_station_size())
+        while (newTrainInfo.m_train_times.size() < line.get_station_size())
         {
-            int actualTime = is_valid_time(trainNumber, 0, newTrainInfo.m_train_type, newTrainInfo.m_train_times, line);
+            int actualTime = is_valid_time(trainNumber, trainStartingStation, 0, newTrainInfo.m_train_type, newTrainInfo.m_train_times, line);
             newTrainInfo.m_train_times.push_back(actualTime);
         }
-        */
 
         /*
             Inserisco la coppia che associa il numero del treno alle sue informazioni nella mappa,
@@ -95,9 +95,17 @@ int TrainTime::get_train_number() const
 
 void TrainTime::update_train_time(const int train_number, const int station, const int newTime, bool isDelay)
 {
+    int time = abs(newTime); // Valore assoluto per conti successivi
+
+    if (!isDelay) //Se è un ritardo allora si somma all'orario attuale, altrimenti si sottrae
+    {
+        time = 0 - time;
+    }
+
+    m_timetable.at(train_number).m_train_times[station] += newTime; //Aggiorna l'orario
 }
 
-int TrainTime::is_valid_time(const int& train_number, const int& time, const TrainType& train_type, const std::vector<int>& timetable, const TrainLine& line) const
+int TrainTime::is_valid_time(const int& train_number, const int& trainStartingStation, const int& time, const TrainType& train_type, const std::vector<int>& timetable, const TrainLine& line) const
 {
     int trainSpeed; // = Train.get_train_speed(train_type)
     if (timetable.size() > 0)
@@ -105,7 +113,7 @@ int TrainTime::is_valid_time(const int& train_number, const int& time, const Tra
         int prevDepartureTime = timetable[timetable.size() - 1];
     }
     else return time;
-    StationInfo stationDistance; // = TrainLine.getPrevStation
+    StationInfo stationDistance = line.get_station_distances(timetable.size() - 1, trainStartingStation, train_type);
     float minTime = stationDistance.m_prev_station_distance / trainSpeed;
     if (time >= minTime)
     {
@@ -117,4 +125,30 @@ int TrainTime::is_valid_time(const int& train_number, const int& time, const Tra
         std::cout << "[INFO] Nuovo tempo calcolato per treno numero: " << train_number << ", tempo cambiato da: " << time << " a " <<< newTime;
         return newTime;
     }
+}
+
+Time convert_mil_to_time(const int time)
+{
+    std::string tempTime = std::to_string(time);
+    char hour[2];
+    char minutes[2];
+
+    tempTime.copy(hour, 2, 0);
+    tempTime.copy(hour, 2, 3);
+
+    Time s;
+    s.hour = atoi(hour);
+    s.minutes = atoi(minutes);
+
+    return s;
+}
+
+int convert_time_to_mil(Time time)
+{
+    stringstream s;
+    string string_time = "";
+    s << time.hour << time.minutes;
+    string_time = s.str();
+
+    return std::stoi(string_time);
 }
