@@ -93,13 +93,11 @@ struct StationInfo
 	float m_next_station_distance;
 };
 
-/*
-
 // Piccola struttura per agevolare la tesione dei tempi per i treni
 struct Time
 {
 	int hour;
-	int minute;
+	int minutes;
 };
-*/
+
 #endif // !generics_h
