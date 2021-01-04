@@ -1,5 +1,5 @@
 /*
-    Fabio Ruscica
+    Fabio Ruscica - 1229076
 */
 
 #include <iostream>
@@ -102,6 +102,17 @@ void TrainTime::update_train_time(const int train_number, const int station, con
         time = 0 - time;
     }
 
+    std::cout << "[INFO] Aggiornato tempo della stazione " << station << "per il treno numero " << train_number;
+    Time sTime = convert_mil_to_time(newTime);
+    if (isDelay)
+    {
+        
+        std::cout << " aggiunto ritardo di " << sTime.hour << "ore e " << sTime.minutes << "minuti";
+    }
+    else
+    {
+        std::cout << " treno in anticipo di " << sTime.hour << "ore e " << sTime.minutes << "minuti";
+    }
     m_timetable.at(train_number).m_train_times[station] += newTime; //Aggiorna l'orario
 }
 
@@ -122,19 +133,22 @@ int TrainTime::is_valid_time(const int& train_number, const int& trainStartingSt
     else
     {
         float newTime = minTime + 60 * timetable.size() + 10;
-        std::cout << "[INFO] Nuovo tempo calcolato per treno numero: " << train_number << ", tempo cambiato da: " << time << " a " <<< newTime;
+        std::cout << "[INFO] Nuovo tempo calcolato per treno numero: " << train_number << ", tempo cambiato da: " << time << " a " << newTime;
         return newTime;
     }
 }
 
+/*
+* Funzione che permette di convertire i tempi letti da timetables.txt in uno struct che divide ore e minuti
+*/
 Time convert_mil_to_time(const int time)
 {
     std::string tempTime = std::to_string(time);
-    char hour[2];
-    char minutes[2];
+    char hour[2] = { '\0' };
+    char minutes[2] = { '\0' };
 
     tempTime.copy(hour, 2, 0);
-    tempTime.copy(hour, 2, 3);
+    tempTime.copy(minutes, 2, 2);
 
     Time s;
     s.hour = atoi(hour);
@@ -143,12 +157,14 @@ Time convert_mil_to_time(const int time)
     return s;
 }
 
+/*
+* Funzione che permette di convertire uno struct Time in tempo militare
+*/
 int convert_time_to_mil(Time time)
 {
     stringstream s;
     string string_time = "";
     s << time.hour << time.minutes;
     string_time = s.str();
-
     return std::stoi(string_time);
 }
