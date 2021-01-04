@@ -1,11 +1,12 @@
 // @author Arjun Jassal, 1219611
 
 #include "Train.h"
-#include "generics.h"
 
-class RegionalTrain::public Train{
-    public:
-        RegionalTrain(int d, int c, int d, TrainType t, TrainDirection dir) : Train(180, d)
+
+void Train::setDelay(int d){
+    timetable.update_train_time(ID, stationsCont, d, true);
 }
 
-Train(int ID, int curr, int d, TrainType t, TrainDirection dir);
+void Train::setNextStation(Station* next){
+    
+}
