@@ -1,3 +1,6 @@
+/*
+    Fabio Ruscica - 1229076
+*/
 #include "TrainLine.h"
 #include <string>
 #include <sstream>
@@ -60,6 +63,7 @@ bool TrainLine::register_stations(std::string file_name)
                 station_name += tempString + " ";
             }
         }
+
         if (isOriginStation)
         {
             Station* originalStation = new MainStation(originDistance, station_name);
