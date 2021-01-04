@@ -1,4 +1,9 @@
-#pragma once
+/*
+	Fabio Ruscica - 1229076
+*/
+
+#ifndef track_h
+#define track_h
 #include "generics.h"
 
 class Train;
@@ -14,3 +19,5 @@ private:
 	const TrackType m_track_type;
 	TrackStatus m_current_status;
 };
+
+#endif
