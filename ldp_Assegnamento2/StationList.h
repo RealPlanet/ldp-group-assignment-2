@@ -22,7 +22,7 @@
 class StationList {
 public:
 	explicit StationList()                                          //Default Constructor
-	: first{nullptr}, last{nullptr} {}
+	: first{nullptr}, last{nullptr}, size{0} {}
 		
 	~StationList() {for (Station* index : iterable()) delete index;}//Destructor
 
@@ -33,9 +33,11 @@ public:
 	
 	Station* getFirst() const;                                      //Return the first station
 	Station* getLast() const;                                       //Return the last station
+	int getSize() {return size;}                                    //Return the number of elements in the list
 	
 	void add(Station* station);                                     //Add a new station
 	std::vector<Station*> iterable() const;                         //Return a list of all the stations
+	std::vector<int> getIndexMain() const {return mainIndex;}       //Return a list of all the types of the stations
 	
 	bool isEmpty() const {return first==nullptr;}                   //Check if the list is empty
 	
@@ -44,6 +46,9 @@ public:
 private:
 	Station* first;                                                 //The first station of the route
 	Station* last;                                                  //The last station of the route
+	
+	int size;                                                       //Number of elements in the list
+	std::vector<int> mainIndex;                                     //Index of the main station in the list;
 };
 
 #endif

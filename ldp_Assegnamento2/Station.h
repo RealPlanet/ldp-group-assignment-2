@@ -20,16 +20,16 @@
 // - nextTime >= -1
 
 struct LineWay {
-	explicit LineWay()                //Default Constructor
-	: lastTime{-1}, lastTrain{nullptr} {}
+	explicit LineWay(Station* currentStation)   //Default Constructor
+	: lastTime{-1}, lastTrain{nullptr}, departures(currentStation) {}
 	
-	Train* lastTrain;                 //Last train to depart
-	int lastTime;                     //Last train departure time
-	int nextTime;                     //Next train departure time forward
+	Train* lastTrain;                           //Last train to depart
+	int lastTime;                               //Last train departure time
+	int nextTime;                               //Next train departure time forward
 	
-	ArrivalsTrainPQ arrivals;         //Priority Queue of arrivals
-	DeparturesTrainPQ departures;     //Priority Queue of departures
-	std::vector<Track*> tracks;       //List of tracks of the station
+	ArrivalsTrainPQ arrivals;                   //Priority Queue of arrivals
+	DeparturesTrainPQ departures;               //Priority Queue of departures
+	std::vector<Track*> tracks;                 //List of tracks of the station
 };
 
 //Invariants
@@ -56,8 +56,8 @@ public:
 	
 	explicit Station(int d = 0, std::string l = "Unnamed", StationType sType = StationType::MAIN)   //Default Constructor
 	: distance{d}, label{l}, next{nullptr}, prev{nullptr}, stationType{sType} {
-		forward = new LineWay();
-		backward = new LineWay();
+		forward = new LineWay(this);
+		backward = new LineWay(this);
 		}
 	
 	~Station();                                                                     //Destructor
@@ -82,13 +82,12 @@ public:
 	
 									//*** Function Operations ***
 	
-	getDistance() const {return distance;}                                          //Return the distance of the station from the origin
+	float getDistance() const {return distance;}                                    //Return the distance of the station from the origin
 	std::string getLabel() const {return label;}                                    //Return the name of the station
 	StationType getStationType() const {return stationType;}                        //Return the station type
 	
 	virtual void eventIncomingTrain(Train* train, const TrainRequest request) = 0;  //Receives the call from the train arriving at the station
 	void eventOutgoingTrain(Train* train);                                          //Receives the call from the train that is ready to leave the station
-	void eventDepartedTrain(int time, LineWay* way);                                //Tell the train to depart from the station and update the departure queue
 	
 	void clock(int time);                                                           //Check arrivals and departures every minute of the simulation
 									//*** Exception Management ***
@@ -107,7 +106,7 @@ protected:
 	
 	const StationType stationType;                                                  //Type of station
 	
-	const int distance;                                                             //Distance from origin
+	const float distance;                                                           //Distance from origin
 	const std::string label;                                                        //Name of the station
 	
 	const int stationSpeedLimit = 80;                                               //Speed limit 10km around the station
@@ -118,6 +117,7 @@ protected:
 	
 	void callArrivals(LineWay* way);                                                //Manages and allow trains to arrive at the standard track of the station
 	virtual void callDepartures(LineWay* way) = 0;                                  //Manages and allow trains to depart from the station
+	void eventDepartedTrain(int time, LineWay* way);                                //Tell the train to depart from the station and update the departure queue
 	
 	Track* getTrack(TrackType type, LineWay* way) const;                            //Return the first free track;
 	bool isTrackFree(TrackType type, LineWay* way) const;                           //Check is there is at least one track free

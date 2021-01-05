@@ -60,12 +60,12 @@ Station* Station::getPrev() const {
  */
 void Station::eventOutgoingTrain(Train* train) {
 	LineWay* way;
-	if (train->getTrainDirection() == TrainDirection::FORWARD) way = forward;																			//FIXME getTrainDirection();
+	if (train->getTrainDirection() == TrainDirection::FORWARD) way = forward;
 	else way = backward;
 	
 	if ((way == forward && !hasNext()) || (way == backward && !hasPrev())) throw ImpossibleDeparturesException();
 	
-	std::cout << "[ " << train->getName() << " ---call---> " << label << " ] The train is ready to depart";								//FIXME getName();
+	std::cout << "[ " << train->getTrainID() << " ---call---> " << label << " ] The train is ready to depart";
 	way->departures.push(train);
 	callDepartures(way);
 }
@@ -77,6 +77,8 @@ void Station::eventOutgoingTrain(Train* train) {
  * @param time Current time.
  */
 void Station::clock(int time) {
+	time = time/100*60+time%100;
+	
 	if (time < 0) throw InvalidTimeException();
 	if (time%(15-4)) {
 		callArrivals(forward);
@@ -94,8 +96,8 @@ void Station::clock(int time) {
  */
 void Station::eventDepartedTrain(int time, LineWay* way) {
 	if (time > way->nextTime && way->departures.getSize()!=0) {
-		way->departures.top()->callTrain(StationSignal::DEPARTURE_ALLOW);																								//FIXME callTrain();
-		std::cout << "[ " << way->departures.top()->getName() << " ---call---> " << label << " ] The train is departing from the station";				//FIXME getName();
+		way->departures.top()->callTrain(StationSignal::DEPARTURE_ALLOW);
+		std::cout << "[ " << way->departures.top()->getTrainID() << " ---call---> " << label << " ] The train is departing from the station";
 		
 		way->lastTime = time;
 		way->lastTrain = way->departures.top();
@@ -112,11 +114,11 @@ void Station::eventDepartedTrain(int time, LineWay* way) {
  */
 void Station::callArrivals(LineWay* way) {
 	if (way->arrivals.getSize() != 0) {
-		if (isTrackFree(TrackType::STANDARD, way) && (way->arrivals.top()->getLate() < -aheadTolerace)) {												//FIXME
+		if (isTrackFree(TrackType::STANDARD, way) && (way->arrivals.top()->getDelay() < -aheadTolerace)) {
 			Track* track = getTrack(TrackType::STANDARD, way);
-			way->arrivals.top()->callTrain(StationSignal::ARRIVAL_ALLOW,track);																			//FIXME callTrain();
+			way->arrivals.top()->callTrain(StationSignal::ARRIVAL_ALLOW,track);
 			
-			std::cout << "[ " << label << " ---call---> " << way->arrivals.top()->getName() << " ] The train is allowed to go to the station";		//FIXME getName();
+			std::cout << "[ " << label << " ---call---> " << way->arrivals.top()->getTrainID() << " ] The train is allowed to go to the station";
 			track->update(TrackStatus::OCCUPIED);
 			way->arrivals.pop();
 		}
@@ -170,22 +172,22 @@ MainStation::MainStation(int d, std::string l) : Station(d, l, StationType::MAIN
  */
 void MainStation::eventIncomingTrain(Train* train, TrainRequest request) {
 	LineWay* way;
-	if (train->getTrainDirection() == TrainDirection::FORWARD) way = forward;																		//FIXME getTrainDirection();
+	if (train->getTrainDirection() == TrainDirection::FORWARD) way = forward;
 	else way = backward;
 		
 	if (request == TrainRequest::STOP) {
 		std::cout << "[ " << train->getName() << " ---call---> " << label << " ] for requesting a stop at the station";
 		
-		if (isTrackFree(TrackType::STANDARD, way) && (train->getLate() < -aheadTolerace)) {											//FIXME
+		if (isTrackFree(TrackType::STANDARD, way) && (train->getDelay() < -aheadTolerace)) {
 			Track* track = getTrack(TrackType::STANDARD, way);
-			train->callTrain(StationSignal::ARRIVAL_ALLOW,track);																						//FIXME callTrain();
+			train->callTrain(StationSignal::ARRIVAL_ALLOW,track);
 			track->update(TrackStatus::OCCUPIED);
 			
 			std::cout << "[ " << label << " ---call---> " << train->getName() << " ] The train is allowed to go to the station";
 			return;
 		}
 		way->arrivals.push(train);
-		train->callTrain(StationSignal::ARRIVAL_DENY);																											//FIXME callTrain();
+		train->callTrain(StationSignal::ARRIVAL_DENY);
 		std::cout << "[ " << label << " ---call---> " << train->getName() << " ] The train must go to the parking of the station";
 		return;
 	}
@@ -200,8 +202,8 @@ void MainStation::eventIncomingTrain(Train* train, TrainRequest request) {
 void MainStation::callDepartures(LineWay* way) {
 	if (way->lastTime == -1) way->nextTime = 0;
 	if (way->departures.getSize() != 0) {
-		int rawPrev = way->lastTrain->getMaxSpeed()*(abs(getNext()->getDistance()-distance)-10) + 5*stationSpeedLimit;							//FIXME getMaxSpeed()
-		int rawNext = way->departures.top()->getMaxSpeed()*(abs(getNext()->getDistance()-distance)-20) + 5*stationSpeedLimit;				//FIXME getMaxSpeed()
+		int rawPrev = (abs(getNext()->getDistance()-distance)-10)/way->lastTrain->getMaxSpeed()*60 + stationSpeedLimit/5*60;
+		int rawNext = (abs(getNext()->getDistance()-distance)-20)/way->departures.top()->getMaxSpeed()*60 + stationSpeedLimit/5*60;
 
 		way->nextTime = way->lastTime+(rawPrev-rawNext);
 	}
@@ -234,22 +236,22 @@ LocalStation::LocalStation(int d, std::string l) : Station(d, l, StationType::LO
  */
 void LocalStation::eventIncomingTrain(Train* train, TrainRequest request) {
 	LineWay* way;
-	if (train->getTrainDirection() == TrainDirection::FORWARD) way = forward;																		//FIXME getTrainDirection();
+	if (train->getTrainDirection() == TrainDirection::FORWARD) way = forward;
 	else way = backward;
 		
 	if (request == TrainRequest::STOP) {
 		std::cout << "[ " << train->getName() << " ---call---> " << label << " ] for requesting a stop at the station";
 		
-		if (isTrackFree(TrackType::STANDARD, way) && (train->getLate() < -aheadTolerace)) {											//FIXME
+		if (isTrackFree(TrackType::STANDARD, way) && (train->getDelay() < -aheadTolerace)) {
 			Track* track = getTrack(TrackType::STANDARD, way);
-			train->callTrain(StationSignal::ARRIVAL_ALLOW,track);																						//FIXME callTrain();
+			train->callTrain(StationSignal::ARRIVAL_ALLOW,track);
 			track->update(TrackStatus::OCCUPIED);
 			
 			std::cout << "[ " << label << " ---call---> " << train->getName() << " ] The train is allowed to go to the station";
 			return;
 		}
 		way->arrivals.push(train);
-		train->callTrain(StationSignal::ARRIVAL_DENY);																											//FIXME callTrain();
+		train->callTrain(StationSignal::ARRIVAL_DENY);
 		std::cout << "[ " << label << " ---call---> " << train->getName() << " ] The train must go to the parking of the station";
 		return;
 	}
@@ -266,16 +268,16 @@ void LocalStation::eventIncomingTrain(Train* train, TrainRequest request) {
 void LocalStation::callDepartures(LineWay* way) {
 	if (way->lastTime == -1) way->nextTime = 0;
 	if (way->departures.getSize() != 0) {
-		if (way->departures.top()->getTrainType() == TrainType::REGIONALE) {																					//FIXME getTrainType();
-			int rawPrev = way->lastTrain->getMaxSpeed()*(abs(getNext()->getDistance()-distance)-10) + 5*stationSpeedLimit;							//FIXME getMaxSpeed()
-			int rawNext = way->departures.top()->getMaxSpeed()*(abs(getNext()->getDistance()-distance)-20) + 5*stationSpeedLimit;				//FIXME getMaxSpeed()
+		if (way->departures.top()->getTrainType() == TrainType::REGIONALE) {
+			int rawPrev = (abs(getNext()->getDistance()-distance)-10)/way->lastTrain->getMaxSpeed()*60 + stationSpeedLimit/5*60;
+			int rawNext = (abs(getNext()->getDistance()-distance)-20)/way->departures.top()->getMaxSpeed()*60 + stationSpeedLimit/5*60;
 			way->nextTime = way->lastTime+(rawPrev-rawNext);
 			return;
 		}
 	}
 	else {
-		int rawPrev = way->lastTrain->getMaxSpeed()*(abs(getNext()->getDistance()-distance)-10) + 5*stationSpeedLimit;							//FIXME getMaxSpeed()
-		int rawNext = way->departures.top()->getMaxSpeed()*(abs(getNext()->getDistance()-distance)-10);
+		int rawPrev = (abs(getNext()->getDistance()-distance)-10)/way->lastTrain->getMaxSpeed()*60 + stationSpeedLimit/5*60;
+		int rawNext = (abs(getNext()->getDistance()-distance)-10)/way->departures.top()->getMaxSpeed()*60;
 		way->nextTime = way->lastTime+(rawPrev-rawNext);
 	}
 }

@@ -33,6 +33,8 @@ void StationList::add(Station* station) {
 	}
 	else first = station;
 	last = station;
+	if (station->getStationType() == StationType::MAIN) mainIndex.push_back(size);
+	size++;
 }
 
 /**

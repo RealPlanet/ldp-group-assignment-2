@@ -1,6 +1,7 @@
 // @author Matteo Salvalaio, 1216361
 
 #include "TrainPQ.h"
+#include "Station.h"
 
 /**
  * @brief Add a new element to the queue.
@@ -38,14 +39,42 @@ void TrainPQ::pop() {
 	size--;
 }
 
-
-//TODO!!!
+/**
+ * @brief Compare two elements and check between them which one have the most priority.
+ * @param lth The first train to compare.
+ * @param rth The first train to compare.
+ * @return True if lth has more priority over rth, false otherwise.
+ */
 bool ArrivalsTrainPQ::compare(Train* lth, Train* rth) {
-	lth->
+	int lthTime = lth->getNextStationTimeofArrival();						//FIX ME getNextStationTimeofArrival()
+	int rthTime = rth->getNextStationTimeofArrival();						//FIX ME getNextStationTimeofArrival()
 	
+	if (lthTime/100*60+lthTime%100-rthTime/100*60+rthTime%100 > 0) return false;
+	return true;
 	}
 
+/**
+ * @brief Compare two elements and check between them which one have the most priority.
+ * @param lth The first train to compare.
+ * @param rth The first train to compare.
+ * @return True if lth has more priority over rth, false otherwise.
+ */
+bool DeparturesTrainPQ::compare(Train* lth, Train* rth) {
+	int lthTime = analyzeTime(lth);
+	int rthTime = analyzeTime(rth);
+	
+	if (lthTime-rthTime > 0) return false;
+	return true;
+	}
 
-
-//se true il mio (lth )ha precedenza
-bool DeparturesTrainPQ::compare(Train* lth, Train* rth) {} //se true il mio (lth )ha precedenza
+/**
+ * @brief Calculate the ipotetical time of arrival to the next
+ * station if the train does not stop to the next station. @see comments on TrainPQ.h
+ * @param train The train pointer.
+ * @return The ipotetical time of arrival to the next station.
+ */
+int DeparturesTrainPQ::analyzeTime(Train* train) {
+	int extraTime = 0;
+	if (train->getNextStationToStop() != currentStation->getNext()) extraTime = (train->getNextStationToStop()->getDistance() - currentStation->getNext()->getDistance() -5)/train->getMaxSpeed()*62+5/80*60;					//FIX MEgetNextStationToStop()  getNextStationToStop()
+	return train->getNextStationTimeofArrival()/100*60+train->getNextStationTimeofArrival()%100-extraTime;																	//FIX ME getNextStationTimeofArrival()
+} 
