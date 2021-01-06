@@ -116,7 +116,22 @@ void TrainTime::update_train_time(const int train_number, const int station, con
     m_timetable.at(train_number).m_train_times[station] += newTime; //Aggiorna l'orario
 }
 
-int TrainTime::is_valid_time(const int& train_number, const int& trainStartingStation, const int& time, const TrainType& train_type, const std::vector<int>& timetable, const TrainLine& line) const
+std::vector<int> TrainTime::get_timetable_trains()
+{
+    std::vector<int> tempKey;
+
+    auto cursor = m_timetable.begin();
+
+    while (cursor != m_timetable.end())
+    {
+        tempKey.push_back( cursor->first );
+        cursor++;
+    }
+
+    return tempKey;
+}
+
+int TrainTime::is_valid_time(const int& train_number, const int& trainStartingStation, const int& time, const TrainType& train_type, const std::vector<int>& timetable, const TrainLine& line)
 {
     int trainSpeed; // = Train.get_train_speed(train_type)
     if (timetable.size() > 0)
