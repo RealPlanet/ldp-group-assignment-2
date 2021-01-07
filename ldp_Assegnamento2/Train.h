@@ -94,70 +94,110 @@ class Train(){
         int getMaxSpeed() {return maxSpeed;}
         int getTrainID() {return trainID;}
         
-        void callTrain(StationSignal si){
-            //arrivo stazione
-            if(si==StationSignal::DEPARTURE_ALLOW){
-                currentSpeed=80;
-            }else{
-                parking=true;
+
+        void callTrain(StationSignal si){                                                       //chiamata alla stazione
+            if(si==StationSignal::DEPARTURE_ALLOW){                                             //arrivo alla stazione
+                currentSpeed=80;                                                                //rallenta la velocità
+            }else{ 
+                parking=true;                                                                   
             }
         }
 
-        void callTrain(StationSignal si, Track* t){
-            parking=false;
+        void callTrain(StationSignal si, Track* t){                                             //chiamata alla stazione con binario
+            parking=false;                                                                      //
             track=t;
         }
 
+        //ritardo treni REGIONALI
         int getDelay(){
-            int t=trainTime.get_train_info(trainID).m_train_times.at(visitedStations+1);
+            int t=trainTime.get_train_info(trainID).m_train_times.at(visitedStations+1);        //differenza tra orario corrente e previsto
             return time-(t/100*60+t%100);
         }
 
+        //orario previsto alla stazione successiva treni REGIONALI
         int getTimeArrivalNextStation(){
-            return trainTime.get_train_info(trainID).m_train_times.at(visitedStations+1);
+            return trainTime.get_train_info(trainID).m_train_times.at(visitedStations+1);       //ritorna l'orario previsto alla stazione+1(successiva)
         }
 
+        //clock treni
         void clock(int t){
             time=t/100*60+t%100;
-            if(currentSpeed==80 && 
-            ((direction==TrainDirection::FORWARD && stazPrec.getDistance()+distance>5) 
-            || (direction==TrainDirection::BACKWARD && stazPrec.getDistance()-distanze>5){
-                currentSpeed=maxSpeed;
-            }
-
-            if((direction==TrainDirection::FORWARD && stazNext.getDistance()-distance<20)
-            || (direction==TrainDirection::BACKWARD && distance-stazNext.getDistance()<20)){
-                stazNext->eventIncomingTrain(this, TrainRequest::STOP);
-            }
-
-            if(parking && currentSpeed!=80 &&
-            (direction==TrainDirection::FORWARD && stazNext.getDistance()-distance<5)
-            || (direction==TrainDirection::BACKWARD && distance-stazNext.getDistance()<5)){
-                currentSpeed=80;
-            }
-
-            if(parking&&
-            (direction==TrainDirection::FORWARD && stazNext.getDistance()-distance<5)
-            || (direction==TrainDirection::BACKWARD && distance-stazNext.getDistance()<5)){
-                currentSpeed=0;
-            }
-
-            if(timer==-1 &&
-            (direction==TrainDirection::FORWARD && stazNext.getDistance()-distance<0)
-            || (direction==TrainDirection::BACKWARD && distance-stazNext.getDistance()<0)){
-                currentSpeed=0;
-                if(visitedStation+1==trainLine.m_station_list.iterator().size()){
-                    endline=true;
-                    track->update(TrackStatus::FREE);
+            //treno REGIONALE
+            if(TrainType::REGIONALE){
+                //superamento dei 5km dalla stazione -> treno massima velocità
+                if(currentSpeed==80 &&
+                ((direction==TrainDirection::FORWARD && stazPrec.getDistance()+distance>5) 
+                || (direction==TrainDirection::BACKWARD && stazPrec.getDistance()-distance>5){
+                    currentSpeed=maxSpeed;
                 }
-                delay=getDelay();
-                if(delay>0) std::cout << "treno in ritardo di " << delay;
 
-                timer=5;
-                if(delay<0){
-                    time+=delay;
+                //richiesta treno in arrivo
+                if((direction==TrainDirection::FORWARD && stazNext.getDistance()-distance<20)
+                || (direction==TrainDirection::BACKWARD && distance-stazNext.getDistance()<20)){
+                    stazNext->eventIncomingTrain(this, TrainRequest::STOP);
                 }
-                visitedStations++;
+
+            
+                if(parking && currentSpeed!=80 &&
+                (direction==TrainDirection::FORWARD && stazNext.getDistance()-distance<5)
+                || (direction==TrainDirection::BACKWARD && distance-stazNext.getDistance()<5)){
+                  currentSpeed=80;
+                }
+
+                //treno in parcheggio
+                if(parking &&
+                (direction==TrainDirection::FORWARD && stazNext.getDistance()-distance<5)
+                || (direction==TrainDirection::BACKWARD && distance-stazNext.getDistance()<5)){
+                    currentSpeed=0;
+                }
+
+                //treno fermo in stazione
+                if(timer==-1 &&
+                (direction==TrainDirection::FORWARD && stazNext.getDistance()-distance<0)
+                || (direction==TrainDirection::BACKWARD && distance-stazNext.getDistance()<0)){
+                  currentSpeed=0;
+                  //elimina il treno se è l'ultima stazione liberando il binario
+                    if(visitedStation+1==trainLine.m_station_list.iterator().size()){
+                        endline=true;
+                        track->update(TrackStatus::FREE);
+                    }
+                    delay=getDelay();
+                    if(delay>0) std::cout << "treno in ritardo di " << delay;
+                
+                
+                    timer=5;
+                    if(delay<0){
+                        time+=delay;
+                    }
+                    visitedStations++;
+            }else{
+                /*
+                //superamento dei 5km dalla stazione -> treno massima velocità
+                if(currentSpeed==80 &&
+                ((direction==TrainDirection::FORWARD && stazPrec.getDistance()+distance>5) 
+                || (direction==TrainDirection::BACKWARD && stazPrec.getDistance()-distance>5){
+                    currentSpeed=maxSpeed;
+                }
+
+                //richiesta treno in arrivo
+                if((direction==TrainDirection::FORWARD && stazNext.getDistance()-distance<20)
+                || (direction==TrainDirection::BACKWARD && distance-stazNext.getDistance()<20)){
+                    stazNext->eventIncomingTrain(this, TrainRequest::STOP);
+                }
+
+            
+                if(parking && currentSpeed!=80 &&
+                (direction==TrainDirection::FORWARD && stazNext.getDistance()-distance<5)
+                || (direction==TrainDirection::BACKWARD && distance-stazNext.getDistance()<5)){
+                  currentSpeed=80;
+                }
+
+                //treno in parcheggio
+                if(parking &&
+                (direction==TrainDirection::FORWARD && stazNext.getDistance()-distance<5)
+                || (direction==TrainDirection::BACKWARD && distance-stazNext.getDistance()<5)){
+                    currentSpeed=0;
+                }
             }
 
             if(time>0){
@@ -170,42 +210,54 @@ class Train(){
                     }else{
                         stazNext=stazNext->getPrev();
                     }
+                }*/
+            }
+        }
+
+        bool getEndList(){return endline};                          //ritorna se il treno ha raggiunto l'ultima stazione
+        Station* getNextMainStation(TrainLine& line){
+            Station t;
+            for(int i=visitedStations; i<line.get_station_size+1; i++){
+                if(trainLine.m_station_list.at(i).StationType::MAIN){
+                    t=trainLine.m_station_list.at(i);
+                    return t;
+                    break;
                 }
             }
 
-
-
         }
 
-        bool getEndList(){return endline};
+        Station* getPrecMainStation(TrainLine& line){
+
+        }
+    
 
 
     private:
-        int trainID;
-        TrainType trainType;
-        TrainDirection direction;
+        int trainID;                                                //ID del treno
+        TrainType trainType;                                        //tipo del treno
+        TrainDirection direction;                                   //direzione del treno
 
-        int timer=-1;
+        int timer=-1;                                               //timer di sosta in stazione
 
-        bool endline=false;
-        bool parking=false;
+        bool endline=false;                                         //controllo se è l'ultima stazione della linea
+        bool parking=false;                                         //controllo se va in parcheggio o no
 
-        int visitedStations;
+        int visitedStations;                                        //contatore delle stazioni visitate
 
-        Track* track;
+        Track* track;                                               //binario associato in arrivo alla stazione
 
-        TrainLine& line;
-        TrainTime& trainTime;
+        TrainLine& line;                                            //linea associata al treno
+        TrainTime& trainTime;                                       //tabella degli orari associata al treno
 
-        int maxSpeed;
-        int currentSpeed;
+        int maxSpeed;                                               //velocità massima
+        int currentSpeed;                   
 
-        int time;
+        int time;                                                   //orario di arrivo
 
-        int distance;
-        Station* stazPrec;
-        Station* stazNext;
+        int distance;                                               //distanza totale percorsa da 0
+        Station* stazPrec;                                          //stazione precedente
+        Station* stazNext;                                          //stazione successiva
     }
     
-
 }
