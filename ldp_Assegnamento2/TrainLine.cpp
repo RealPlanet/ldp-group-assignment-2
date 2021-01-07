@@ -1,6 +1,8 @@
+
 /*
     Fabio Ruscica - 1229076
 */
+
 #include "TrainLine.h"
 #include <string>
 #include <sstream>
@@ -91,75 +93,82 @@ bool TrainLine::register_stations(std::string file_name)
 
 StationInfo TrainLine::get_station_distances(int station_number, int starting_station, TrainType type) const
 {
-    /*
-    * Itera su tutte le stazioni,
-        i == numero di stazioni iterate -- j == numero di stazioni principali iterate
-
-    */
     StationInfo info = {};
-    if (!starting_station)
+    Station* s = nullptr;
+    Station* s_p = nullptr;
+    Station* s_n = nullptr;
+    std::vector<Station*> allStationsVec = m_station_list.iterable();
+    std::vector<int> mainStationsIndex = m_station_list.getIndexMain();
+    int distance_prev = 0;
+    int distance_next = 0;
+
+    if (!starting_station) // Caso stazione iniziale 0
     {
-        Station* node = m_station_list.getFirst();
-        for (int i = 0, j = 0; true; i++)
+        if (type == TrainType::REGIONALE)
         {
-            
-            if (type == TrainType::REGIONALE && i == station_number)
-            {
-                info.m_next_station_distance = node->getDistance();
-                if(!i) info.m_prev_station_distance = node->getPrev()->getDistance(); //Se si tratta dalla stazione 1 allora non esiste distanza da quella precedente
-
-                return info;
-            }
-            else if ( (type == TrainType::ALTA_VELOCITA || type == TrainType::ALTA_VELOCITA_SUPER) && j == station_number)
-            {
-                info.m_next_station_distance = node->getDistance();
-                if (!i) info.m_prev_station_distance = node->getPrev()->getDistance(); //Se si tratta dalla stazione 1 allora non esiste distanza da quella precedente
-
-                return info;
-            }
-        
-            // Abbiamo passato una stazione principale allora incrementa j
-            if (node->getStationType() == StationType::MAIN) j++;
-
-            if (node->hasNext())
-            {
-                node = node->getNext(); //Abbiamo fatto le verifiche, proseguiamo al nodo successivo
-            }
-            else break;
+            s = allStationsVec[station_number];
+            if (station_number > 0)
+                s_p = allStationsVec[station_number - 1];
+            if (station_number < mainStationsIndex.size() - 1)
+                s_n = allStationsVec[station_number + 1];
         }
+        else //Tutti gli altri tipi di treno sono considerati alta velocità
+        {
+            s = allStationsVec[mainStationsIndex[station_number]];
+            if( station_number > 0 ) 
+                s_p = allStationsVec[mainStationsIndex[station_number - 1]];
+
+            if (station_number < mainStationsIndex.size() - 1)
+                s_n = allStationsVec[mainStationsIndex[station_number + 1]];
+        }
+        if (s_p) distance_prev = s->getDistance() - s_p->getDistance();
+        if (s_n) distance_next = s_n->getDistance() - s->getDistance();
     }
-    else
+    else // Caso stazione capolinea 1
     {
-        Station* node = m_station_list.getLast();
-        for (int i = 0, j = 0; true; i++)
+        station_number = allStationsVec.size() - 1 - station_number; //Inverto l'indice, quindi se richiedo la stazione zero e parto dal capoline ottengo la stazione uguale a vettiore[size - 1]
+        if (type == TrainType::REGIONALE)
         {
-            if (type == TrainType::REGIONALE && i == station_number)
-            {
-                info.m_next_station_distance = node->getPrev()->getDistance(); //Siccome percorriamo la lista al contrario dobbiamo tornare indietro per la distanza
-                if (!i) info.m_prev_station_distance = node->getNext()->getDistance(); //Se si tratta dalla stazione N allora non esiste distanza da quella successiva
-                return info;
-            }
-            else if ((type == TrainType::ALTA_VELOCITA || type == TrainType::ALTA_VELOCITA_SUPER) && j == station_number)
-            {
-                info.m_next_station_distance = node->getPrev()->getDistance(); //Siccome percorriamo la lista al contrario dobbiamo tornare indietro per la distanza
-                if (!i) info.m_prev_station_distance = node->getNext()->getDistance(); //Se si tratta dalla stazione N allora non esiste distanza da quella successiva
-                
-                return info;
-            }
-
-            // Abbiamo passato una stazione principale allora incrementa j
-            if (node->getStationType() == StationType::MAIN) j++;
-
-            //Controllo se uscire o meno qui perchè devo controllare anche l'ultimo nodo della lista
-            if (node->hasPrev())
-            {
-                node = node->getPrev(); //Abbiamo fatto le verifiche, proseguiamo al nodo successivo
-            }
-            else break;
+            s = allStationsVec[station_number];
+            if (station_number < allStationsVec.size() - 1 )
+                s_p = allStationsVec[station_number + 1];
+            if (station_number > 0)
+                s_n = allStationsVec[station_number + 1];
         }
+        else //Tutti gli altri tipi di treno sono considerati alta velocità
+        {
+            s = allStationsVec[mainStationsIndex[station_number]];
+            if (station_number < allStationsVec.size() - 1)
+                s_p = allStationsVec[mainStationsIndex[station_number + 1]];
+            if (station_number > 0)
+                s_n = allStationsVec[mainStationsIndex[station_number + 1]];
+        }
+        // IN QUESTO CASO LA STAZIONE PRECEDENTE HA UNA MAGGIOR DISTANZA DALL'ORIGINE QUINDI LA FORMULA E' INVERTITA!!!
+        if (s_p) distance_prev = s_p->getDistance() - s->getDistance();
+        if (s_n) distance_next = s->getDistance()- s_n->getDistance();
     }
+
+    info.m_next_station_distance = distance_next;
+    info.m_prev_station_distance = distance_prev;
+    return info;
 
     return info; // Caso pessimo non abbiamo trovato le informazioni richieste
+}
+
+/*
+  Genera una lista di sole stazioni principali per i treni ad alta velocità
+*/
+const StationList& TrainLine::get_main_station_list()
+{
+    std::vector<int> main_station_index = m_station_list.getIndexMain();
+    std::vector<Station*> station_iterator = m_station_list.iterable();
+    StationList main_stations = {};
+    for (int i = 0; i < main_station_index.size(); i++)
+    {
+        main_stations.add(station_iterator[main_station_index[i]]);
+    }
+
+    return main_stations;
 }
 
 /*
@@ -170,5 +179,3 @@ bool TrainLine::is_number(const std::string& string) const
     // se il primo carattere è un numero stoi è in grado di convertirlo a numero
     return isdigit(string[0]);
 }
-
-
