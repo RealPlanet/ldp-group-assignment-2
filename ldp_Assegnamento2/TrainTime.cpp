@@ -41,11 +41,11 @@ bool TrainTime::register_timetable(const std::string file_name, const TrainLine&
         stringstream ss{ newLine }; //Converti la ringa in uno stream
         TrainInfo newTrainInfo = {};
 
-        int trainNumber;
-        int tempTrainType;
-        int trainStartingStation;
-        int trainFirstDepartureTime;
-        int tempTrainTime;
+        int trainNumber = 0;
+        int tempTrainType = 0;
+        int trainStartingStation = 0;
+        int trainFirstDepartureTime = 0;
+        int tempTrainTime = 0;
         
         // Salvo temporaneamente i dati in variabili
         ss >> trainNumber;
@@ -58,8 +58,12 @@ bool TrainTime::register_timetable(const std::string file_name, const TrainLine&
         newTrainInfo.m_train_times.push_back(trainFirstDepartureTime);
         //Ora nello stringstream rimangono solo gli orari quindi itero e salvo ogni orario come intero nel vettore
         int station_size = line.get_station_size();
-        if (newTrainInfo.m_train_type != TrainType::REGIONALE) station_size = line.get_main_station_size();
-        for (int i = 0; ss >> tempTrainTime && newTrainInfo.m_train_times.size() < station_size; i++)
+        if (newTrainInfo.m_train_type != TrainType::REGIONALE)
+        {
+            station_size = line.get_main_station_size();
+        }
+
+        for (int i = 1; ss >> tempTrainTime && newTrainInfo.m_train_times.size() < station_size; i++)
         {
             int actualTime = is_valid_time(trainNumber, trainStartingStation, tempTrainTime, newTrainInfo.m_train_type, newTrainInfo.m_train_times, line);
             newTrainInfo.m_train_times.push_back(actualTime); 
@@ -135,7 +139,7 @@ std::vector<int> TrainTime::get_timetable_trains()
 
 int TrainTime::is_valid_time(const int& train_number, const int& trainStartingStation, const int& time, const TrainType& train_type, const std::vector<int>& timetable, const TrainLine& line)
 {
-    int trainSpeed; // = Train.get_train_speed(train_type)
+    int trainSpeed = getTrainSpeed(train_type);
     if (timetable.size() > 0)
     {
         int prevDepartureTime = timetable[timetable.size() - 1];

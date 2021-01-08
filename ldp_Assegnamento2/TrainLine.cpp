@@ -41,7 +41,7 @@ bool TrainLine::register_stations(std::string file_name)
         int station_type = 1;
         int originDistance = 0;
         bool invalidStation = false;
-        // Station* newStation = new Station();
+
         //Ora nello stringstream rimangono solo gli orari quindi itero e salvo ogni orario come intero nel vettore
         while (ss >> tempString)
         {
@@ -82,18 +82,19 @@ bool TrainLine::register_stations(std::string file_name)
                 m_station_list.add(originalStation);
                 isOriginStation = false; //Ora riprendiamo comportamento normale
             }
-
-            Station* newStation;
-            if (station_type)
-            {
-                newStation = new MainStation(originDistance, station_name);
-            }
             else
             {
-                newStation = new LocalStation(originDistance, station_name);
-            }
-
-            m_station_list.add(newStation);
+                Station* newStation;
+                if (station_type)
+                {
+                    newStation = new MainStation(originDistance, station_name);
+                }
+                else
+                {
+                    newStation = new LocalStation(originDistance, station_name);
+                }
+                m_station_list.add(newStation);
+            }  
         }
     }
 
@@ -136,9 +137,10 @@ StationInfo TrainLine::get_station_distances(int station_number, int starting_st
     }
     else // Caso stazione capolinea 1
     {
-        station_number = allStationsVec.size() - 1 - station_number; //Inverto l'indice, quindi se richiedo la stazione zero e parto dal capoline ottengo la stazione uguale a vettiore[size - 1]
         if (type == TrainType::REGIONALE)
         {
+            station_number = allStationsVec.size() - 1 - station_number; //Inverto l'indice, quindi se richiedo la stazione zero e parto dal capoline ottengo la stazione uguale a vettiore[size - 1]
+
             s = allStationsVec[station_number];
             if (station_number < allStationsVec.size() - 1 )
                 s_p = allStationsVec[station_number + 1];
@@ -147,6 +149,8 @@ StationInfo TrainLine::get_station_distances(int station_number, int starting_st
         }
         else //Tutti gli altri tipi di treno sono considerati alta velocità
         {
+            station_number = mainStationsIndex.size() - 1 - station_number; //Inverto l'indice, quindi se richiedo la stazione zero e parto dal capoline ottengo la stazione uguale a vettiore[size - 1]
+
             s = allStationsVec[mainStationsIndex[station_number]];
             if (station_number < allStationsVec.size() - 1)
                 s_p = allStationsVec[mainStationsIndex[station_number + 1]];
@@ -160,7 +164,6 @@ StationInfo TrainLine::get_station_distances(int station_number, int starting_st
 
     info.m_next_station_distance = distance_next;
     info.m_prev_station_distance = distance_prev;
-    return info;
 
     return info; // Caso pessimo non abbiamo trovato le informazioni richieste
 }
