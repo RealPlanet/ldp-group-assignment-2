@@ -177,7 +177,7 @@ Time convert_mil_to_time(const int time)
 */
 int convert_time_to_mil(Time time)
 {
-    stringstream s;
+    stringstream s = {};;
     string string_time = "";
     s << time.hour << time.minutes;
     string_time = s.str();
