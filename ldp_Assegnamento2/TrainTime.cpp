@@ -57,7 +57,7 @@ bool TrainTime::register_timetable(const std::string file_name, const TrainLine&
         newTrainInfo.n_starting_station = trainStartingStation;
         newTrainInfo.m_train_times.push_back(trainFirstDepartureTime);
         //Ora nello stringstream rimangono solo gli orari quindi itero e salvo ogni orario come intero nel vettore
-        for (int i = 0; ss >> tempTrainTime; i++)
+        for (int i = 0; ss >> tempTrainTime && newTrainInfo.m_train_times.size() < line.get_station_size(); i++)
         {
             int actualTime = is_valid_time(trainNumber, trainStartingStation, tempTrainTime, newTrainInfo.m_train_type, newTrainInfo.m_train_times, line);
             newTrainInfo.m_train_times.push_back(actualTime); 
@@ -177,7 +177,7 @@ Time convert_mil_to_time(const int time)
 */
 int convert_time_to_mil(Time time)
 {
-    stringstream s = {};
+    stringstream s;
     string string_time = "";
     s << time.hour << time.minutes;
     string_time = s.str();
