@@ -40,6 +40,7 @@ bool TrainLine::register_stations(std::string file_name)
         string station_name = "";
         int station_type = 1;
         int originDistance = 0;
+        bool invalidStation = false;
         // Station* newStation = new Station();
         //Ora nello stringstream rimangono solo gli orari quindi itero e salvo ogni orario come intero nel vettore
         while (ss >> tempString)
@@ -52,6 +53,11 @@ bool TrainLine::register_stations(std::string file_name)
                 if (ss >> tempString && is_number(tempString))
                 {
                     originDistance = stoi(tempString);
+                    if (originDistance - m_station_list.getLast()->getDistance() <= 20)
+                    {
+                        invalidStation = true;
+                        break;
+                    }
                 }
                 else
                 {
@@ -66,25 +72,29 @@ bool TrainLine::register_stations(std::string file_name)
             }
         }
 
-        if (isOriginStation)
+        //Se la stazione in considerazione non è valida, scartiamo tutto e non la inseriamo nella lista
+        if (!invalidStation)
         {
-            Station* originalStation = new MainStation(originDistance, station_name);
-            m_station_list = StationList();
-            m_station_list.add(originalStation);
-            isOriginStation = false; //Ora riprendiamo comportamento normale
+            if (isOriginStation)
+            {
+                Station* originalStation = new MainStation(originDistance, station_name);
+                m_station_list = StationList();
+                m_station_list.add(originalStation);
+                isOriginStation = false; //Ora riprendiamo comportamento normale
+            }
+
+            Station* newStation;
+            if (station_type)
+            {
+                newStation = new MainStation(originDistance, station_name);
+            }
+            else
+            {
+                newStation = new LocalStation(originDistance, station_name);
+            }
+
+            m_station_list.add(newStation);
         }
-        
-        Station* newStation;
-        if (station_type)
-        {
-            newStation = new MainStation(originDistance, station_name);
-        }
-        else
-        {
-            newStation = new LocalStation(originDistance, station_name);
-        }
-        
-        m_station_list.add(newStation);
     }
 
     stations.close(); //Chiudo lo stream e rilascio le risorse occupate
