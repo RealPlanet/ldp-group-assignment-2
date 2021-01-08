@@ -16,6 +16,7 @@ public:
 	StationInfo get_station_distances(int station_number, int starting_station, TrainType type) const;
 	const StationList& get_station_list() const { return m_station_list; }
 	const StationList& get_main_station_list();
+	int get_main_station_size() const { return m_station_list.getIndexMain().size(); }
 
 	class InvalidStationDistance : public std::exception {};
 private:
