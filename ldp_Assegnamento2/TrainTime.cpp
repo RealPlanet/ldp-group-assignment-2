@@ -113,11 +113,11 @@ void TrainTime::update_train_time(const int train_number, const int station, con
     if (isDelay)
     {
         
-        std::cout << " aggiunto ritardo di " << sTime.hour << "ore e " << sTime.minutes << "minuti";
+        std::cout << " aggiunto ritardo di " << sTime.hour << "ore e " << sTime.minutes << "minuti" << std::endl;
     }
     else
     {
-        std::cout << " treno in anticipo di " << sTime.hour << "ore e " << sTime.minutes << "minuti";
+        std::cout << " treno in anticipo di " << sTime.hour << "ore e " << sTime.minutes << "minuti" << std::endl;
     }
     m_timetable.at(train_number).m_train_times[station] += newTime; //Aggiorna l'orario
 }
@@ -156,7 +156,7 @@ int TrainTime::is_valid_time(const int& train_number, const int& trainStartingSt
     else
     {
         int newTime = (prevDepartureTime + (int)minTime + 10) / 60 * 100 + (prevDepartureTime + (int)minTime + 10) % 60;
-        std::cout << "[INFO] Nuovo tempo calcolato per treno numero: " << train_number << ", tempo cambiato da: " << time << " a " << newTime;
+        std::cout << "[INFO] Nuovo tempo calcolato per treno numero: " << train_number << ", tempo cambiato da: " << time << " a " << newTime << std::endl;
         return newTime;
     }
 }

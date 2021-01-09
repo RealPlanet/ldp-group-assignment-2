@@ -55,6 +55,7 @@ bool TrainLine::register_stations(std::string file_name)
                     originDistance = stoi(tempString);
                     if (originDistance - m_station_list.getLast()->getDistance() <= 20)
                     {
+                        std::cout << "[INFO] Stazione: " << station_name << " e\' stata rimossa perchè non rispetta la distanza minima di 20Km! \n";
                         invalidStation = true;
                         break;
                     }
@@ -119,18 +120,18 @@ StationInfo TrainLine::get_station_distances(int station_number, int starting_st
         {
             s = allStationsVec[station_number];
             if (station_number > 0)
-                s_p = allStationsVec[station_number - 1];
+                s_p = allStationsVec[(size_t)(station_number) - 1];
             if (station_number < mainStationsIndex.size() - 1)
-                s_n = allStationsVec[station_number + 1];
+                s_n = allStationsVec[(size_t)station_number + 1];
         }
         else //Tutti gli altri tipi di treno sono considerati alta velocità
         {
             s = allStationsVec[mainStationsIndex[station_number]];
             if( station_number > 0 ) 
-                s_p = allStationsVec[mainStationsIndex[station_number - 1]];
+                s_p = allStationsVec[mainStationsIndex[(size_t)station_number - 1]];
 
             if (station_number < mainStationsIndex.size() - 1)
-                s_n = allStationsVec[mainStationsIndex[station_number + 1]];
+                s_n = allStationsVec[mainStationsIndex[(size_t)station_number + 1]];
         }
         if (s_p) distance_prev = s->getDistance() - s_p->getDistance();
         if (s_n) distance_next = s_n->getDistance() - s->getDistance();
@@ -143,9 +144,9 @@ StationInfo TrainLine::get_station_distances(int station_number, int starting_st
 
             s = allStationsVec[station_number];
             if (station_number < allStationsVec.size() - 1 )
-                s_p = allStationsVec[station_number + 1];
+                s_p = allStationsVec[(size_t)station_number + 1];
             if (station_number > 0)
-                s_n = allStationsVec[station_number + 1];
+                s_n = allStationsVec[(size_t)station_number + 1];
         }
         else //Tutti gli altri tipi di treno sono considerati alta velocità
         {
@@ -153,9 +154,9 @@ StationInfo TrainLine::get_station_distances(int station_number, int starting_st
 
             s = allStationsVec[mainStationsIndex[station_number]];
             if (station_number < allStationsVec.size() - 1)
-                s_p = allStationsVec[mainStationsIndex[station_number + 1]];
+                s_p = allStationsVec[mainStationsIndex[(size_t)station_number + 1]];
             if (station_number > 0)
-                s_n = allStationsVec[mainStationsIndex[station_number + 1]];
+                s_n = allStationsVec[mainStationsIndex[(size_t)station_number + 1]];
         }
         // IN QUESTO CASO LA STAZIONE PRECEDENTE HA UNA MAGGIOR DISTANZA DALL'ORIGINE QUINDI LA FORMULA E' INVERTITA!!!
         if (s_p) distance_prev = s_p->getDistance() - s->getDistance();
