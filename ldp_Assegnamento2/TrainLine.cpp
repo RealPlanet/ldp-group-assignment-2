@@ -110,8 +110,8 @@ StationInfo TrainLine::get_station_distances(int station_number, int starting_st
     Station* s_n = nullptr;
     std::vector<Station*> allStationsVec = m_station_list.iterable();
     std::vector<int> mainStationsIndex = m_station_list.getIndexMain();
-    int distance_prev = 0;
-    int distance_next = 0;
+    float distance_prev = 0;
+    float distance_next = 0;
 
     if (!starting_station) // Caso stazione iniziale 0
     {
@@ -139,7 +139,7 @@ StationInfo TrainLine::get_station_distances(int station_number, int starting_st
     {
         if (type == TrainType::REGIONALE)
         {
-            station_number = allStationsVec.size() - 1 - station_number; //Inverto l'indice, quindi se richiedo la stazione zero e parto dal capoline ottengo la stazione uguale a vettiore[size - 1]
+            station_number = (int)allStationsVec.size() - 1 - station_number; //Inverto l'indice, quindi se richiedo la stazione zero e parto dal capoline ottengo la stazione uguale a vettiore[size - 1]
 
             s = allStationsVec[station_number];
             if (station_number < allStationsVec.size() - 1 )
@@ -149,7 +149,7 @@ StationInfo TrainLine::get_station_distances(int station_number, int starting_st
         }
         else //Tutti gli altri tipi di treno sono considerati alta velocità
         {
-            station_number = mainStationsIndex.size() - 1 - station_number; //Inverto l'indice, quindi se richiedo la stazione zero e parto dal capoline ottengo la stazione uguale a vettiore[size - 1]
+            station_number = (int)mainStationsIndex.size() - 1 - station_number; //Inverto l'indice, quindi se richiedo la stazione zero e parto dal capoline ottengo la stazione uguale a vettiore[size - 1]
 
             s = allStationsVec[mainStationsIndex[station_number]];
             if (station_number < allStationsVec.size() - 1)
@@ -175,7 +175,7 @@ const StationList& TrainLine::get_main_station_list()
 {
     std::vector<int> main_station_index = m_station_list.getIndexMain();
     std::vector<Station*> station_iterator = m_station_list.iterable();
-    StationList main_stations = {};
+    StationList main_stations = StationList();
     for (int i = 0; i < main_station_index.size(); i++)
     {
         main_stations.add(station_iterator[main_station_index[i]]);
