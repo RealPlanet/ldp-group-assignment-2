@@ -5,9 +5,11 @@
 
 #include "generics.h"
 #include <iostream>
-#include "Track.h"
-#include "Train.h"
 #include <vector>
+
+class Train;
+class Station;
+class Track;
 
 /************************************************
  *  La classe base delle priority queue che gestiscono
@@ -38,7 +40,7 @@ public:
 	
 protected:
 	virtual bool compare(Train* lth, Train* rth) = 0;            //Compare two elements
-	int size;                                                    //Dimension of the list
+	int size = 0;                                                //Dimension of the list
 	std::vector<Train*> trainsQueue;                             //List of trains pointers
 };
 

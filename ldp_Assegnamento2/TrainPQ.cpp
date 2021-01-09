@@ -1,7 +1,9 @@
 // @author Matteo Salvalaio, 1216361
 
 #include "TrainPQ.h"
+#include "Train.h"
 #include "Station.h"
+#include "Track.h"
 
 /**
  * @brief Add a new element to the queue.
@@ -46,8 +48,8 @@ void TrainPQ::pop() {
  * @return True if lth has more priority over rth, false otherwise.
  */
 bool ArrivalsTrainPQ::compare(Train* lth, Train* rth) {
-	int lthTime = lth->getNextStationTimeofArrival();						//FIX ME getNextStationTimeofArrival()
-	int rthTime = rth->getNextStationTimeofArrival();						//FIX ME getNextStationTimeofArrival()
+	int lthTime = lth->getNextArrivalTime();
+	int rthTime = rth->getNextArrivalTime();
 	
 	if (lthTime/100*60+lthTime%100-rthTime/100*60+rthTime%100 > 0) return false;
 	return true;
@@ -75,6 +77,10 @@ bool DeparturesTrainPQ::compare(Train* lth, Train* rth) {
  */
 int DeparturesTrainPQ::analyzeTime(Train* train) {
 	int extraTime = 0;
-	if (train->getNextStationToStop() != currentStation->getNext()) extraTime = (train->getNextStationToStop()->getDistance() - currentStation->getNext()->getDistance() -5)/train->getMaxSpeed()*62+5/80*60;					//FIX MEgetNextStationToStop()  getNextStationToStop()
-	return train->getNextStationTimeofArrival()/100*60+train->getNextStationTimeofArrival()%100-extraTime;																	//FIX ME getNextStationTimeofArrival()
+	if (train->getTrainType() != TrainType::REGIONALE) {
+		Station* station = currentStation->getNext();
+		while (station->getStationType() != StationType::MAIN) station = station->getNext();
+		extraTime = (station->getDistance()-currentStation->getNext()->getDistance() -5)/train->getMaxSpeed()*62+5/80*60;
+	}
+	return train->getNextArrivalTime()/100*60+train->getNextArrivalTime()%100-extraTime;
 } 

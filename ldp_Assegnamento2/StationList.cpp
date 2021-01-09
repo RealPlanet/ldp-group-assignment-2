@@ -1,6 +1,14 @@
 // @author Matteo Salvalaio, 1216361
 
 #include "StationList.h"
+#include "Station.h"
+
+/**
+ * @brief Destructor of the class StationList.
+ */
+StationList::~StationList() {
+	if (size != 0) for (Station* index : iterable()) delete index;
+}
 
 /**
  * @brief Get the first element of the list.
@@ -28,8 +36,8 @@ Station* StationList::getLast() const {
  */
 void StationList::add(Station* station) {
 	if (!isEmpty()) {
-		getLast()->setNext(station);
-		station->setPrev(getLast());
+		last->setNext(station);
+		station->setPrev(last);
 	}
 	else first = station;
 	last = station;
@@ -45,9 +53,10 @@ std::vector<Station*> StationList::iterable() const {
 	if (isEmpty()) throw EmptyListException();
 	std::vector<Station*> list;
 	Station* index = first;
+	list.push_back(index);
 	while (index->hasNext()) {
-		list.push_back(index);
 		index = index->getNext();
+		list.push_back(index);
 	}
 	return list;
 }

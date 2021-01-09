@@ -16,15 +16,16 @@
  *  una copia e l'effettiva formazione di una copia di
  *  questa classe non è necessaria nel progetto.
  ***********************************************/
+#include <vector>
 
-#include "Station.h"
+class Station;
 
 class StationList {
 public:
 	explicit StationList()                                          //Default Constructor
 	: first{nullptr}, last{nullptr}, size{0} {}
 		
-	~StationList() {for (Station* index : iterable()) delete index;}//Destructor
+	~StationList();                                                 //Destructor
 
 	StationList(const StationList& list) = delete;                  //Copy Constructor
 	StationList& operator=(const StationList& list) = delete;       //Copy Assignment
@@ -33,7 +34,7 @@ public:
 	
 	Station* getFirst() const;                                      //Return the first station
 	Station* getLast() const;                                       //Return the last station
-	int getSize() {return size;}                                    //Return the number of elements in the list
+	int getSize() const {return size;}                              //Return the number of elements in the list
 	
 	void add(Station* station);                                     //Add a new station
 	std::vector<Station*> iterable() const;                         //Return a list of all the stations

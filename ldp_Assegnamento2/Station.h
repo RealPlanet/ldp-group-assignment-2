@@ -5,9 +5,11 @@
 
 #include <string>
 #include <iostream>
-#include "TrainPQ.h"
-#include "Track.h"
 #include "generics.h"
+#include "TrainPQ.h"
+
+class Track;
+class Train;
 
 /************************************************
  *  Lo struct contiene al suo interno le liste di attesa
@@ -25,7 +27,7 @@ struct LineWay {
 	
 	Train* lastTrain;                           //Last train to depart
 	int lastTime;                               //Last train departure time
-	int nextTime;                               //Next train departure time forward
+	int nextTime = 0;                           //Next train departure time forward
 	
 	ArrivalsTrainPQ arrivals;                   //Priority Queue of arrivals
 	DeparturesTrainPQ departures;               //Priority Queue of departures
@@ -95,7 +97,6 @@ public:
 	class OutOfBoundsException : public std::exception {};                          //Exception of the class Station
 	class FreeTrackNotFoundException : public std::exception {};                    //Exception of the class Station
 	class ImpossibleDeparturesException : public std::exception {};                 //Exception of the class Station
-	class InvalidStationDistance : public std::exception {};                        //Exception of the class Station
 	class InvalidFunctionCallException : public std::exception {};                  //Exception of the class Station
 	class InvalidTimeException : public std::exception {};                          //Exception of the class Station
 	
@@ -136,7 +137,7 @@ public:
 	class InvalidRequestException : public std::exception {};                        //Exception of the class MainStation
 	
 private:
-	void callDepartures(LineWay* way) override;
+	void callDepartures(LineWay* way) override;                                     //Implementation of callDepartures from Station
 };
 
 class LocalStation : public Station {
