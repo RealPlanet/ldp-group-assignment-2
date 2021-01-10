@@ -21,6 +21,7 @@ class Train{
             : trainID{ID}, trainType{t}, direction{dir}, line{l}, trainTime{time} {
                 maxSpeed=getTrainSpeed(t);
                 currentSpeed=0;
+                visitedStations=0;
                 distance=0;
         }
 
