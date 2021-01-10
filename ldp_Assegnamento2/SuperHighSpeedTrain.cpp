@@ -1,8 +1,8 @@
 #include "Train.h"
 #include "TrainLine.h"
 
-SuperHighSpeedTrain::SuperHighSpeedTrain(int ID, TrainType::ALTA_VELOCITA, TrainDirection dir, TrainLine* l, TrainTime* time) 
-        : public Train(ID, TrainType::ALTA_VELOCITA, dir, l, time){
+SuperHighSpeedTrain::SuperHighSpeedTrain(int ID, TrainType::ALTA_VELOCITA_SUPER, TrainDirection dir, TrainLine* l, TrainTime* time) 
+        : public Train(ID, TrainType::ALTA_VELOCITA_SUPER, dir, l, time){
     if(dir==TrainDirection::FORWARD){
         prevStation=line->get_main_station_list().getFirst();                                //prec-> stazione iniziale
         nextStation=line->get_main_station_list().getFirst()->getNext();                     //next-> stazione principale successiva

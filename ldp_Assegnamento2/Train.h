@@ -7,8 +7,6 @@
 #include "TrainTime.h"
 #include "Track.h"
 
-
-class Train;
 static int getTrainSpeed(TrainType elem);
 
 static int timeConversion(int t){
