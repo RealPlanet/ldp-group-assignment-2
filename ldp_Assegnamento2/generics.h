@@ -56,7 +56,7 @@ enum class TrainDirection
 };
 
 /*
-	Tipi di richiesta che un treno può fare ad una stazione
+	Tipi di richiesta che un treno puï¿½ fare ad una stazione
 	STOP = Treno si ferma per gestire i passeggeri
 	TRANSIT = Treno deve passare senza fermarsi
 */
@@ -67,7 +67,7 @@ enum class TrainRequest
 };
 
 /*
-	Tipi di segnale che la stazione può inviare ad un treno
+	Tipi di segnale che la stazione puï¿½ inviare ad un treno
 */
 enum class StationSignal
 {

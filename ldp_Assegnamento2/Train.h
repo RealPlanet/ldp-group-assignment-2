@@ -56,7 +56,7 @@ class Train{
         //RITARDO TRENI
         int getDelay(){
             int t=trainTime->get_train_info(trainID).m_train_times.at(visitedStations+1);        //differenza tra orario corrente e previsto
-            return time-timeConversion();
+            return time-timeConversion(t);
         }
 
         //ORARIO DI ARRIVO PREVISTO ALLA STAZIONE SUCCESSIVA
@@ -96,8 +96,28 @@ class Train{
         float distance;                                             //distanza totale percorsa da 0
         Station* prevStation;                                          //stazione precedente
         Station* nextStation;                                          //stazione successiva
-
 };
+
+class RegionalTrain : public Train{
+    public:
+        RegionalTrain(int ID, TrainType::REGIONALE, TrainDirection dir, TrainLine* l, TrainTime* time);
+    
+        void clock(int t);
+}
+
+class RegionalTrain : public Train{
+    public:
+        RegionalTrain(int ID, TrainType::ALTA_VELOCITA, TrainDirection dir, TrainLine* l, TrainTime* time);
+    
+        void clock(int t);
+}
+
+class RegionalTrain : public Train{
+    public:
+        RegionalTrain(int ID, TrainType::ALTA_VELOCITA_SUPER, TrainDirection dir, TrainLine* l, TrainTime* time);
+    
+        void clock(int t);
+}
 
 static int getTrainSpeed(TrainType elem){
     switch (elem){
