@@ -3,7 +3,8 @@
 #include "Station.h"
 #include "TrainTime.h"
 
-static int getTrainSpeed(TrainType elem){
+class Train;
+static int getTrainSpeed(TrainType elem);{
     switch (elem){
     case TrainType::REGIONALE:
         return 160;
@@ -15,7 +16,7 @@ static int getTrainSpeed(TrainType elem){
         return 300;
         break;
     default:
-        throw new Train::InvalidTrainType();
+        throw new Train::InvalidTrainType;
         break;
     }
 }
@@ -24,8 +25,10 @@ static int timeConversion(int t){
     return (t/100*60+t%100);
 }
 
-class Train(){
+class Train{
     public:
+        class InvalidTrainType : std::exception{};
+
         Train(int ID, TrainType t, TrainDirection dir, TrainLine* l, TrainTime* time)
             : trainID{ID}, trainType{t}, direction{dir}, line{l}, trainTime{time} {
                 maxSpeed=getTrainSpeed(t);
@@ -34,13 +37,13 @@ class Train(){
 
                 if(t==TrainType::REGIONALE){
                     if(dir==TrainDirection::FORWARD){                                               
-                        prevStation=line->m_station_list.getFirst();                                //prec-> stazione iniziale
-                        nextStation=line->m_station_list.getFirst()->getNext();                     //next-> stazione iniziale+1
+                        prevStation=line->get_station_list().getFirst();                                //prec-> stazione iniziale
+                        nextStation=line->get_station_list().getFirst()->getNext();                     //next-> stazione iniziale+1
                     }
                     else if(dir==TrainDirection::BACKWARD){
-                        distance=line->m_station_list.getLast()->getDistance();                            
-                        nextStation=line->m_station_list.getLast()->getPrev();                      //prec-> stazione finale
-                        prevStation=line->m_station_list.getLast();                                 //next-> stazione finale-1
+                        distance=line->get_station_list().getLast()->getDistance();                            
+                        nextStation=line->get_station_list().getLast()->getPrev();                      //prec-> stazione finale
+                        prevStation=line->get_station_list().getLast();                                 //next-> stazione finale-1
                     }
                 }else{
                     if(dir==TrainDirection::FORWARD){
@@ -125,5 +128,22 @@ class Train(){
         float distance;                                             //distanza totale percorsa da 0
         Station* prevStation;                                          //stazione precedente
         Station* nextStation;                                          //stazione successiva
+
+};
+
+static int getTrainSpeed(TrainType elem){
+    switch (elem){
+    case TrainType::REGIONALE:
+        return 160;
+        break;
+    case TrainType::ALTA_VELOCITA:
+        return 240;
+        break;
+    case TrainType::ALTA_VELOCITA_SUPER:
+        return 300;
+        break;
+    default:
+        throw new Train::InvalidTrainType;
+        break;
     }
 }
