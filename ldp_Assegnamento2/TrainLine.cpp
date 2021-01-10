@@ -4,12 +4,12 @@
 */
 
 #include "TrainLine.h"
+#include "generics.h"
+#include "Station.h"
+#include "Train.h"
 #include <string>
 #include <sstream>
 #include <fstream>
-#include "generics.h"
-#include "Station.h"
-
 using std::isdigit;
 using std::vector;
 using std::string;
@@ -103,6 +103,23 @@ bool TrainLine::register_stations(std::string file_name)
     return true;
 }
 
+Station* TrainLine::get_next_main_station(Station* c_station, Train& train)
+{
+    do
+    {
+        if (train.getTrainDirection() == TrainDirection::FORWARD)
+        {
+            c_station = c_station->getNext();
+        }
+        else
+        {
+            c_station = c_station->getPrev();
+        }
+    }while(c_station->getStationType() != StationType::MAIN);
+
+    return c_station;
+}
+
 StationInfo TrainLine::get_station_distances(int station_number, int starting_station, TrainType type) const
 {
     StationInfo info = {};
@@ -167,22 +184,6 @@ StationInfo TrainLine::get_station_distances(int station_number, int starting_st
     info.m_prev_station_distance = distance_prev;
 
     return info; // Caso pessimo non abbiamo trovato le informazioni richieste
-}
-
-/*
-  Genera una lista di sole stazioni principali per i treni ad alta velocità
-*/
-const StationList& TrainLine::get_main_station_list()
-{
-    std::vector<int> main_station_index = m_station_list.getIndexMain();
-    std::vector<Station*> station_iterator = m_station_list.iterable();
-    StationList main_stations = StationList();
-    for (int i = 0; i < main_station_index.size(); i++)
-    {
-        main_stations.add(station_iterator[main_station_index[i]]);
-    }
-
-    return main_stations;
 }
 
 /*

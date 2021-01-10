@@ -10,6 +10,7 @@
 #include <string>
 
 class Station;
+class Train;
 
 class TrainLine
 {
@@ -17,10 +18,11 @@ public:
 	bool register_stations(std::string file_name = "");
 	int get_station_size() const { return m_station_list.getSize(); }
 	const StationList& get_station_list() const { return m_station_list; }
-	
+	Station* get_next_main_station(Station* c_station, Train& train);
+
 	int get_main_station_size() const { return (int)m_station_list.getIndexMain().size(); }
 	StationInfo get_station_distances(int station_number, int starting_station, TrainType type) const;
-	const StationList& get_main_station_list();
+	
 
 	class InvalidStationDistance : public std::exception {};
 private:
