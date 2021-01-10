@@ -9,9 +9,10 @@ RegionalTrain::RegionalTrain(int ID, TrainDirection dir, TrainLine* l, TrainTime
         nextStation=line->get_station_list().getFirst()->getNext();                     //next-> stazione iniziale+1
     }
     else if(dir==TrainDirection::BACKWARD){
-        distance=line->get_station_list().getLast()->getDistance();                            
-         nextStation=line->get_station_list().getLast()->getPrev();                      //prec-> stazione finale
+        distance=line->get_station_list().getLast()->getDistance();
+
         prevStation=line->get_station_list().getLast();                                  //next-> stazione finale-1
+        nextStation=line->get_station_list().getLast()->getPrev();                      //prec-> stazione finale
     }
 }
 
@@ -47,7 +48,7 @@ void RegionalTrain::clock(int t){
         currentSpeed=0;
 
     //treno fermo in stazione
-    if(timer==-1 && fabs(nextStation->getDistance()-distance)<0){
+    if(timer==-1 && fabs(nextStation->getDistance()-distance)<0.67){
         currentSpeed=0;
         if(visitedStations+1==line->get_station_list().iterable().size()-1){                 //se arrivo al capolinea
                 endline=true;
