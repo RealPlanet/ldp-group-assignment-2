@@ -1,8 +1,8 @@
 #include "Train.h"
 #include "TrainLine.h"
 
-HighSpeedTrain(int ID, TrainType::ALTA_VELOCITA, TrainDirection dir, TrainLine* l, TrainTime* time) 
-: public Train(ID, TrainType::ALTA_VELOCITA, dir, l, time){
+SuperHighSpeedTrain::SuperHighSpeedTrain(int ID, TrainType::ALTA_VELOCITA, TrainDirection dir, TrainLine* l, TrainTime* time) 
+        : public Train(ID, TrainType::ALTA_VELOCITA, dir, l, time){
     if(dir==TrainDirection::FORWARD){
         prevStation=line->get_main_station_list().getFirst();                                //prec-> stazione iniziale
         nextStation=line->get_main_station_list().getFirst()->getNext();                     //next-> stazione principale successiva
@@ -13,7 +13,7 @@ HighSpeedTrain(int ID, TrainType::ALTA_VELOCITA, TrainDirection dir, TrainLine* 
     }
 }
 
-void clock(int t){
+void SuperHighSpeedTrain::clock(int t){
     time=timeConversion(t);                                     //conversione tempo
     if(direction==TrainDirection::FORWARD)                 
         distance+=currentSpeed/60.0;                            //se il treno va avanti la distanza dall'origine aumenta
