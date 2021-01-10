@@ -8,7 +8,7 @@ SuperHighSpeedTrain::SuperHighSpeedTrain(int ID, TrainDirection dir, TrainLine* 
         prevStation=line->get_station_list().getFirst();                                //prec-> stazione iniziale
         nextStation=get_next_main_station(prevStation, *this);                          //next-> stazione iniziale+1
     }else if(dir==TrainDirection::BACKWARD){
-        distance=line->get_main_station_list().getLast()->getDistance();                           
+        distance=line->get_station_list().getLast()->getDistance();                           
         
         prevStation=line->get_station_list().getLast();                                 //next-> stazione principale finale-1
         nextStation=get_next_main_station(prevStation, *this);                          //prec-> stazione finale
