@@ -67,7 +67,7 @@ class Train{
         }
 
     
-    private:
+    protected:
         int trainID;                                                //ID del treno
         TrainType trainType;                                        //tipo del treno
         TrainDirection direction;                                   //direzione del treno
@@ -98,24 +98,24 @@ class Train{
 
 class RegionalTrain : public Train{
     public:
-        RegionalTrain(int ID, TrainType::REGIONALE, TrainDirection dir, TrainLine* l, TrainTime* time);
+        RegionalTrain(int ID, TrainDirection dir, TrainLine* l, TrainTime* time);
     
         void clock(int t);
-}
+};
 
 class HighSpeedTrain : public Train{
     public:
-        RegionalTrain(int ID, TrainType::ALTA_VELOCITA, TrainDirection dir, TrainLine* l, TrainTime* time);
+        HighSpeedTrain(int ID, TrainDirection dir, TrainLine* l, TrainTime* time);
     
         void clock(int t);
-}
+};
 
 class SuperHighSpeedTrain : public Train{
     public:
-        RegionalTrain(int ID, TrainType::ALTA_VELOCITA_SUPER, TrainDirection dir, TrainLine* l, TrainTime* time);
+        SuperHighSpeedTrain(int ID, TrainDirection dir, TrainLine* l, TrainTime* time);
     
         void clock(int t);
-}
+};
 
 static int getTrainSpeed(TrainType elem){
     switch (elem){
@@ -134,9 +134,5 @@ static int getTrainSpeed(TrainType elem){
     }
 }
 
-//carica tutti i treni
-#include "RegionalTrain.cpp"
-#include "HighSpeedTrain.cpp"
-#include "SuperHighSpeedTrain.cpp"
 
 #endif

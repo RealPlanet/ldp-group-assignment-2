@@ -1,8 +1,8 @@
 #include "Train.h"
 #include "TrainLine.h"
 
-SuperHighSpeedTrain::SuperHighSpeedTrain(int ID, TrainType::ALTA_VELOCITA_SUPER, TrainDirection dir, TrainLine* l, TrainTime* time) 
-        : public Train(ID, TrainType::ALTA_VELOCITA_SUPER, dir, l, time){
+SuperHighSpeedTrain::SuperHighSpeedTrain(int ID, TrainDirection dir, TrainLine* l, TrainTime* time) 
+        : Train(ID, TrainType::ALTA_VELOCITA_SUPER, dir, l, time){
     if(dir==TrainDirection::FORWARD){
         prevStation=line->get_main_station_list().getFirst();                                //prec-> stazione iniziale
         nextStation=line->get_main_station_list().getFirst()->getNext();                     //next-> stazione principale successiva
@@ -32,7 +32,7 @@ void SuperHighSpeedTrain::clock(int t){
     if(!parking && fabs(nextStation->getDistance()-distance)<20 && track==nullptr)
             nextStation->eventIncomingTrain(this, TrainRequest::STOP);
     //treno fermo in parcheggio si sposta in stazione
-    if(!parking && fabs(nextStation->getDistance()-distance)<5 && timer=-1)
+    if(!parking && fabs(nextStation->getDistance()-distance)<5 && timer==-1)
         currentSpeed=80;
     //treno arriva ai binari
     if(parking && fabs(nextStation->getDistance()-distance)<5 && currentSpeed!=0)
@@ -40,7 +40,7 @@ void SuperHighSpeedTrain::clock(int t){
     //treno fermo in stazione
     if(timer==-1 && fabs(nextStation->getDistance()-distance)<0){
         currentSpeed=0;
-        if(visitedStation+1==line->get_station_list().iterator().size()-1){                 //se arrivo al capolinea
+        if(visitedStations+1==line->get_station_list().iterable().size()-1){                 //se arrivo al capolinea
                 endline=true;
                 track->update(TrackStatus::FREE);
                 std::cout << "Il treno " << trainID << " e' giunto al capolinea con " << getDelay() << " minuti di ritardo\n";

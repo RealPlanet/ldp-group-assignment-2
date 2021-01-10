@@ -25,9 +25,9 @@ void run_simulation() {
 		TrainDirection dir = TrainDirection::FORWARD;
 		if(info.n_starting_station == 1) dir = TrainDirection::BACKWARD;
 		                                                                     //Generate all the trains
-		if (info.m_train_type == TrainType::REGIONALE) trains.push_back(new RegionalTrain(key, info.m_train_type, dir, line, timetable));
-		else if (info.m_train_type == TrainType::ALTA_VELOCITA) trains.push_back(new HighSpeedTrain(key, info.m_train_type, dir, line, timetable));
-		else trains.push_back(new SuperHighSpeedTrain(key, info.m_train_type, dir, line, timetable));
+		if (info.m_train_type == TrainType::REGIONALE) trains.push_back(new RegionalTrain(key, dir, line, timetable));
+		else if (info.m_train_type == TrainType::ALTA_VELOCITA) trains.push_back(new HighSpeedTrain(key, dir, line, timetable));
+		else trains.push_back(new SuperHighSpeedTrain(key, dir, line, timetable));
 		
 		
 		std::cout << timetable->get_train_info(key).m_train_times.at(0) << "test ";
