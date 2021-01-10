@@ -7,6 +7,8 @@
 
 #include "StationList.h"
 #include "generics.h"
+#include "Station.h"
+#include "Train.h"
 #include <string>
 
 class Station;
@@ -31,6 +33,8 @@ private:
 
 static Station* get_next_main_station(Station* c_station, Train& train)
 {
+    bool f = train.getTrainDirection() == TrainDirection::FORWARD;
+    bool condition = true;
     do
     {
         if (train.getTrainDirection() == TrainDirection::FORWARD)
@@ -41,7 +45,9 @@ static Station* get_next_main_station(Station* c_station, Train& train)
         {
             c_station = c_station->getPrev();
         }
-    } while (c_station->getStationType() != StationType::MAIN);
+        // Potrei usare un function pointer ma non ho tempo per implementarlo al momento
+        condition = (f && c_station->hasNext()) || (!f && c_station->hasPrev());
+    } while (condition && c_station->getStationType() != StationType::MAIN);
 
     return c_station;
 }
