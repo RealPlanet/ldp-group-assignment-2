@@ -103,23 +103,6 @@ bool TrainLine::register_stations(std::string file_name)
     return true;
 }
 
-Station* TrainLine::get_next_main_station(Station* c_station, Train& train)
-{
-    do
-    {
-        if (train.getTrainDirection() == TrainDirection::FORWARD)
-        {
-            c_station = c_station->getNext();
-        }
-        else
-        {
-            c_station = c_station->getPrev();
-        }
-    }while(c_station->getStationType() != StationType::MAIN);
-
-    return c_station;
-}
-
 StationInfo TrainLine::get_station_distances(int station_number, int starting_station, TrainType type) const
 {
     StationInfo info = {};
