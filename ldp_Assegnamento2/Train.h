@@ -3,23 +3,9 @@
 #include "Station.h"
 #include "TrainTime.h"
 
+
 class Train;
-static int getTrainSpeed(TrainType elem);{
-    switch (elem){
-    case TrainType::REGIONALE:
-        return 160;
-        break;
-    case TrainType::ALTA_VELOCITA:
-        return 240;
-        break;
-    case TrainType::ALTA_VELOCITA_SUPER:
-        return 300;
-        break;
-    default:
-        throw new Train::InvalidTrainType;
-        break;
-    }
-}
+static int getTrainSpeed(TrainType elem);
 
 static int timeConversion(int t){
     return (t/100*60+t%100);
@@ -34,28 +20,6 @@ class Train{
                 maxSpeed=getTrainSpeed(t);
                 currentSpeed=0;
                 distance=0;
-
-                if(t==TrainType::REGIONALE){
-                    if(dir==TrainDirection::FORWARD){                                               
-                        prevStation=line->get_station_list().getFirst();                                //prec-> stazione iniziale
-                        nextStation=line->get_station_list().getFirst()->getNext();                     //next-> stazione iniziale+1
-                    }
-                    else if(dir==TrainDirection::BACKWARD){
-                        distance=line->get_station_list().getLast()->getDistance();                            
-                        nextStation=line->get_station_list().getLast()->getPrev();                      //prec-> stazione finale
-                        prevStation=line->get_station_list().getLast();                                 //next-> stazione finale-1
-                    }
-                }else{
-                    if(dir==TrainDirection::FORWARD){
-                    prevStation=line->get_main_station().getFirst();                                //prec-> stazione iniziale
-                    nextStation=line->get_main_station().getFirst()->getNext();                     //next-> stazione principale successiva
-                    }
-                    else if(dir==TrainDirection::BACKWARD){
-                    distance=line->get_main_station().getLast()->getDistance();                           
-                    nextStation=line->get_main_station().getLast()->getPrev();                       //prec-> stazione finale
-                    prevStation=line->get_main_station().getLast();                                  //next-> stazione principale finale-1
-                    }
-                }
         }
 
         //GET

@@ -1,9 +1,20 @@
 #include "Train.h"
+#include "TrainLine.h"
 
 class RegionalTrain : public Train{
     public:
     RegionalTrain(int ID, TrainType::REGIONALE, TrainDirection dir, TrainLine* l, TrainTime* time) 
-        : public Train(ID, TrainType::REGIONALE, dir, l, time){}
+        : public Train(ID, TrainType::REGIONALE, dir, l, time){
+            if(dir==TrainDirection::FORWARD){                                               
+                prevStation=line->get_station_list().getFirst();                                //prec-> stazione iniziale
+                nextStation=line->get_station_list().getFirst()->getNext();                     //next-> stazione iniziale+1
+            }
+            else if(dir==TrainDirection::BACKWARD){
+                distance=line->get_station_list().getLast()->getDistance();                            
+                 nextStation=line->get_station_list().getLast()->getPrev();                      //prec-> stazione finale
+                prevStation=line->get_station_list().getLast();                                  //next-> stazione finale-1
+            }
+        }
 
     void clock(int t){
         time=timeConversion(t);                                     //conversione tempo

@@ -1,9 +1,19 @@
 #include "Train.h"
+#include "TrainLine.h"
 
 class HighSpeedTrain : public Train{
     public:
         HighSpeedTrain(int ID, TrainType::ALTA_VELOCITA, TrainDirection dir, TrainLine* l, TrainTime* time) 
-        : public Train(ID, TrainType::ALTA_VELOCITA, dir, l, time){}
+        : public Train(ID, TrainType::ALTA_VELOCITA, dir, l, time){
+            if(dir==TrainDirection::FORWARD){
+                prevStation=line->get_main_station_list().getFirst();                                //prec-> stazione iniziale
+                nextStation=line->get_main_station_list().getFirst()->getNext();                     //next-> stazione principale successiva
+            }else if(dir==TrainDirection::BACKWARD){
+                distance=line->get_main_station_list().getLast()->getDistance();                           
+                nextStation=line->get_main_station_list().getLast()->getPrev();                       //prec-> stazione finale
+                prevStation=line->get_main_station_list().getLast();                                  //next-> stazione principale finale-1
+            }
+        }
 
     void clock(int t){
         time=timeConversion(t);                                     //conversione tempo
