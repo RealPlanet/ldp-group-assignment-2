@@ -25,7 +25,7 @@ void RegionalTrain::clock(int t){
     
     int arrivalTime=getArrivalTime();
 
-    if(startline && time==timeConversion(t)){                   //se il treno è alla stazione iniziale e arriva il suo orario
+    if(startline && time==timeConversion(arrivalTime)){                   //se il treno è alla stazione iniziale e arriva il suo orario
         prevStation->eventOutgoingTrain(this);                  //treno parte
         startline=false;                                        //il treno non è più all'origine
     }
