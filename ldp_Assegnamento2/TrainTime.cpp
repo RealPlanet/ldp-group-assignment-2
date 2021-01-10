@@ -148,7 +148,7 @@ int TrainTime::is_valid_time(const int& train_number, const int& trainStartingSt
     else return time;
     StationInfo stationDistance = line->get_station_distances((int)timetable.size(), trainStartingStation, train_type);
     int temptime = (time / 100 * 60 + time % 100) - prevDepartureTime;
-    int minTime = (int)stationDistance.m_prev_station_distance / (trainSpeed*60);
+    int minTime = (int)(stationDistance.m_prev_station_distance / trainSpeed * 60);
     if (temptime >= minTime)
     {
         return time;

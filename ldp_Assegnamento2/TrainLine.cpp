@@ -55,7 +55,7 @@ bool TrainLine::register_stations(std::string file_name)
                     originDistance = stoi(tempString);
                     if (originDistance - m_station_list.getLast()->getDistance() <= 20)
                     {
-                        std::cout << "[INFO] Stazione: " << station_name << " e\' stata rimossa perchè non rispetta la distanza minima di 20Km! \n";
+                        std::cout << "[INFO] Stazione: " << station_name << " e\' stata rimossa perche\' non rispetta la distanza minima di 20Km! \n";
                         invalidStation = true;
                         break;
                     }
