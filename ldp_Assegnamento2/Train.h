@@ -103,14 +103,14 @@ class RegionalTrain : public Train{
         void clock(int t);
 }
 
-class RegionalTrain : public Train{
+class HighSpeedTrain : public Train{
     public:
         RegionalTrain(int ID, TrainType::ALTA_VELOCITA, TrainDirection dir, TrainLine* l, TrainTime* time);
     
         void clock(int t);
 }
 
-class RegionalTrain : public Train{
+class SuperHighSpeedTrain : public Train{
     public:
         RegionalTrain(int ID, TrainType::ALTA_VELOCITA_SUPER, TrainDirection dir, TrainLine* l, TrainTime* time);
     
