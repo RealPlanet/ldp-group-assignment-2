@@ -1,7 +1,11 @@
+#ifndef train_h
+#define train_h
+
 // @author Arjun Jassal, 1219611
 #include "generics.h"
 #include "Station.h"
 #include "TrainTime.h"
+#include "Track.h"
 
 
 class Train;
@@ -47,12 +51,12 @@ class Train{
         }
 
         //CLOCK TRENO
-        virtual void clock(int t);
+        virtual void clock(int t)=0;
 
         //RITARDO TRENI
         int getDelay(){
             int t=trainTime->get_train_info(trainID).m_train_times.at(visitedStations+1);        //differenza tra orario corrente e previsto
-            return time-timeConversion;
+            return time-timeConversion();
         }
 
         //ORARIO DI ARRIVO PREVISTO ALLA STAZIONE SUCCESSIVA
@@ -111,3 +115,10 @@ static int getTrainSpeed(TrainType elem){
         break;
     }
 }
+
+//carica tutti i treni
+#include "RegionalTrain.cpp"
+#include "HighSpeedTrain.cpp"
+#include "SuperHighSpeedTrain.cpp"
+
+#endif
