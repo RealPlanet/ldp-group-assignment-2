@@ -5,13 +5,13 @@ SuperHighSpeedTrain::SuperHighSpeedTrain(int ID, TrainDirection dir, TrainLine* 
         : Train(ID, TrainType::ALTA_VELOCITA_SUPER, dir, l, time){
             
     if(dir==TrainDirection::FORWARD){
-        prevStation=line->get_station_list().getFirst();                                                    //prec-> stazione iniziale
-        nextStation=line->get_station_list().getFirst()->get_next_main_station(prevStation, *this);         //next-> stazione iniziale+1
+        prevStation=line->get_station_list().getFirst();                                //prec-> stazione iniziale
+        nextStation=get_next_main_station(prevStation, *this);                          //next-> stazione iniziale+1
     }else if(dir==TrainDirection::BACKWARD){
         distance=line->get_main_station_list().getLast()->getDistance();                           
         
-        prevStation=line->get_station_list().getLast();                                                     //next-> stazione principale finale-1
-        nextStation=line->get_station_list().getLast()->get_next_main_station(prevStation, *this);          //prec-> stazione finale
+        prevStation=line->get_station_list().getLast();                                 //next-> stazione principale finale-1
+        nextStation=get_next_main_station(prevStation, *this);                          //prec-> stazione finale
     }
 }
 
@@ -61,9 +61,9 @@ void SuperHighSpeedTrain::clock(int t){
             nextStation->eventOutgoingTrain(this);          //treno riparte
             prevStation=nextStation;                        //i due puntatori coincidono 
             if(direction==TrainDirection::FORWARD)          
-                nextStation=nextStation->get_next_main_station(prevStation,*this);         //il puntatore va alla prossima stazione
+                nextStation=get_next_main_station(prevStation,*this);         //il puntatore va alla prossima stazione
             else
-                nextStation=nextStation->get_next_main_station(prevStation,*this);
+                nextStation=get_next_main_station(prevStation,*this);
             
         }
     }
