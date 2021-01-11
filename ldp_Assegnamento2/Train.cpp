@@ -1,6 +1,8 @@
-// @author Arjun Jassal, 1219611
-
-
+/*
+    Arjun Jassal - 1219611
+*/
+// DUMMY File
+#include "Train.h"
 void Train::setDelay(int d){
     timetable.update_train_time(ID, stationsCont, d, true);
 }
@@ -24,7 +26,7 @@ void clock(){
         currentSpeed=maxSpeed;
     }
     if(){
-        
+
     }
     StationInfo TrainLine::get_station_distances(int station_number, int starting_station, TrainType type)
 }
