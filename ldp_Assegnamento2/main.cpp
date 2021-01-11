@@ -35,7 +35,7 @@ void run_simulation() {
 	std::cout << "\n[WORKER] Starting the simulation...\n\n";
 	
 	int time = 0;
-	while (trains.size() > 0) {                                              //The simulation keep running until there are still trains
+	while (trains.size() > 0) {                                              //The simulation keep running until there no more trains left
 	
 		for (int index = trains.size()-1; index >= 0; index--) {
 			if (time%30==0)std::cout << "[" << (int)trains.at(index)->getDistance() << "]-" << trains.at(index)->getTrainID() << " ";
@@ -64,5 +64,3 @@ int main(int argc, char *argv[]) {
 	run_simulation();                                                        //Start the simulation
 	return 0;
 }
-
-//da testare se staz. finale è non princip.
