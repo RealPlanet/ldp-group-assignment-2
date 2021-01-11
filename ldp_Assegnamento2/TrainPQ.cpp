@@ -4,6 +4,7 @@
 #include "Train.h"
 #include "Station.h"
 #include "Track.h"
+#include "generics.h"
 
 /**
  * @brief Add a new element to the queue.
@@ -77,10 +78,19 @@ bool DeparturesTrainPQ::compare(Train* lth, Train* rth) {
  */
 int DeparturesTrainPQ::analyzeTime(Train* train) {
 	int extraTime = 0;
+	
+	if (train->getTrainDirection()==TrainDirection::FORWARD) {
+		if (train->getTrainType() != TrainType::REGIONALE) {
+			Station* station = currentStation->getNext();
+			while (station->getStationType() != StationType::MAIN) station = station->getNext();
+			extraTime = (station->getDistance()-currentStation->getNext()->getDistance() -5)/train->getMaxSpeed()*62+5/80*60;
+		}
+		return train->getNextArrivalTime()/100*60+train->getNextArrivalTime()%100-extraTime;
+	}
 	if (train->getTrainType() != TrainType::REGIONALE) {
-		Station* station = currentStation->getNext();
-		while (station->getStationType() != StationType::MAIN) station = station->getNext();
-		extraTime = (station->getDistance()-currentStation->getNext()->getDistance() -5)/train->getMaxSpeed()*62+5/80*60;
+		Station* station = currentStation->getPrev();
+		while (station->getStationType() != StationType::MAIN) station = station->getPrev();
+		extraTime = (currentStation->getPrev()->getDistance()-station->getDistance() -5)/train->getMaxSpeed()*62+5/80*60;
 	}
 	return train->getNextArrivalTime()/100*60+train->getNextArrivalTime()%100-extraTime;
 } 
