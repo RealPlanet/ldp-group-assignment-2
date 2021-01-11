@@ -63,7 +63,7 @@ void HighSpeedTrain::clock(int t){
         currentSpeed=0;
 
     //treno riparte dal parcheggio
-    if(!parking && fabs(nextStation->getDistance()-distance)<5 && currentSpeed=0)
+    if(!parking && fabs(nextStation->getDistance()-distance)<5 && currentSpeed==0)
         currentSpeed=maxSpeed;
 
     //treno fermo in stazione
