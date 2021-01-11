@@ -24,7 +24,7 @@ class StationList {
 public:
 	explicit StationList()                                          //Default Constructor
 	: first{nullptr}, last{nullptr}, size{0} {}
-		
+
 	~StationList();                                                 //Destructor
 
 	StationList(const StationList& list) = delete;                  //Copy Constructor

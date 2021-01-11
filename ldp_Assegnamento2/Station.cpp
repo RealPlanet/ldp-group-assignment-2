@@ -91,6 +91,7 @@ void Station::clock(int time) {
  */
 void Station::eventDepartedTrain(int time, LineWay* way) {
 	if (time > way->nextTime && way->departures.getSize()!=0) {
+		if (way->departures.top()->getTrack() != nullptr) way->departures.top()->getTrack()->update(TrackStatus::FREE);
 		way->departures.top()->callTrain(StationSignal::DEPARTURE_ALLOW);
 		std::cout << "[ " << way->departures.top()->getTrainID() << " ---call---> " << label << " ] The train is departing from the station\n";
 		
@@ -147,7 +148,7 @@ bool Station::isTrackFree(TrackType type, LineWay* way) const {
  * @param d Distance of the station from the origin.
  * @param l Name of the station.
  */
-MainStation::MainStation(int d, std::string l) : Station(d, l, StationType::MAIN) {
+MainStation::MainStation(float d, std::string l) : Station(d, l, StationType::MAIN) {
 	forward->tracks.push_back(new Track(TrackType::STANDARD));
 	forward->tracks.push_back(new Track(TrackType::STANDARD));
 	backward->tracks.push_back(new Track(TrackType::STANDARD));
@@ -202,8 +203,8 @@ void MainStation::callDepartures(LineWay* way) {
 		if (way == forward) nextDistance = getNext()->getDistance();
 		else nextDistance = getPrev()->getDistance();
 		
-		int rawPrev = (abs(nextDistance-distance)-10)/way->lastTrain->getMaxSpeed()*60 + stationSpeedLimit/5*60;
-		int rawNext = (abs(nextDistance-distance)-20)/way->departures.top()->getMaxSpeed()*60 + stationSpeedLimit/5*60;
+		int rawPrev = (abs(nextDistance-distance)-10)/way->lastTrain->getMaxSpeed()*60 + 5/stationSpeedLimit*60;
+		int rawNext = (abs(nextDistance-distance)-20)/way->departures.top()->getMaxSpeed()*60 + 5/stationSpeedLimit*60;
 		
 		way->nextTime = way->lastTime+(rawPrev-rawNext);
 	}
@@ -214,7 +215,7 @@ void MainStation::callDepartures(LineWay* way) {
  * @param d Distance of the station from the origin.
  * @param l Name of the station.
  */
-LocalStation::LocalStation(int d, std::string l) : Station(d, l, StationType::LOCAL) {
+LocalStation::LocalStation(float d, std::string l) : Station(d, l, StationType::LOCAL) {
 	forward->tracks.push_back(new Track(TrackType::STANDARD));
 	forward->tracks.push_back(new Track(TrackType::STANDARD));
 	backward->tracks.push_back(new Track(TrackType::STANDARD));
@@ -255,9 +256,11 @@ void LocalStation::eventIncomingTrain(Train* train, TrainRequest request) {
 		std::cout << "[ " << label << " ---call---> " << train->getTrainID() << " ] The train must go to the parking of the station\n";
 		return;
 	}
+	std::cout << "[ " << train->getTrainID() << " ---call---> " << label << " ] for requesting a transit at the station\n";
 	way->departures.push(train);
 	callDepartures(way);
 	std::cout << "[ " << label << " ---call---> " << train->getTrainID() << " ] The train must go to the parking of the station\n";
+	train->callTrain(StationSignal::ARRIVAL_DENY);
 }
 
 /**
@@ -276,14 +279,14 @@ void LocalStation::callDepartures(LineWay* way) {
 		else nextDistance = getPrev()->getDistance();
 		
 		if (way->departures.top()->getTrainType() == TrainType::REGIONALE) {
-			int rawPrev = (fabs(nextDistance-distance)-10)/way->lastTrain->getMaxSpeed()*60 + stationSpeedLimit/5*60;
-			int rawNext = (fabs(nextDistance-distance)-20)/way->departures.top()->getMaxSpeed()*60 + stationSpeedLimit/5*60;
+			int rawPrev = (fabs(nextDistance-distance)-10)/way->lastTrain->getMaxSpeed()*60 + 5/stationSpeedLimit*60;
+			int rawNext = (fabs(nextDistance-distance)-20)/way->departures.top()->getMaxSpeed()*60 + 5/stationSpeedLimit*60;
 
 			way->nextTime = way->lastTime+(rawPrev-rawNext);
 			return;
 		}
 		else {
-			int rawPrev = (fabs(nextDistance-distance)-10)/way->lastTrain->getMaxSpeed()*60 + stationSpeedLimit/5*60;
+			int rawPrev = (fabs(nextDistance-distance)-10)/way->lastTrain->getMaxSpeed()*60 + 5/stationSpeedLimit*60;
 			int rawNext = (fabs(nextDistance-distance)-10)/way->departures.top()->getMaxSpeed()*60;
 			way->nextTime = way->lastTime+(rawPrev-rawNext);
 		}

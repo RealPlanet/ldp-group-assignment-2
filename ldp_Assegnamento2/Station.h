@@ -56,7 +56,7 @@ class Station {
 public:
 									//*** Essential Operations ***
 	
-	explicit Station(int d = 0, std::string l = "Unnamed", StationType sType = StationType::MAIN)   //Default Constructor
+	explicit Station(float d = 0, std::string l = "Unnamed", StationType sType = StationType::MAIN)   //Default Constructor
 	: distance{d}, label{l}, next{nullptr}, prev{nullptr}, stationType{sType} {
 		forward = new LineWay(this);
 		backward = new LineWay(this);
@@ -131,7 +131,7 @@ protected:
 
 class MainStation : public Station {
 public:
-	explicit MainStation(int d = 0, std::string l = "Unnamed");                      //Default Constructor
+	explicit MainStation(float d = 0, std::string l = "Unnamed");                      //Default Constructor
 	void eventIncomingTrain(Train* train, TrainRequest request) override;            //Implementation of eventIncomingTrain from Station
 	
 	class InvalidRequestException : public std::exception {};                        //Exception of the class MainStation
@@ -142,7 +142,7 @@ private:
 
 class LocalStation : public Station {
 public:
-	explicit LocalStation(int d = 0, std::string l = "Unnamed");                    //Default Constructor
+	explicit LocalStation(float d = 0, std::string l = "Unnamed");                    //Default Constructor
 	void eventIncomingTrain(Train* train, TrainRequest request) override;           //Implementation of eventIncomingTrain from Station
 	
 private:
