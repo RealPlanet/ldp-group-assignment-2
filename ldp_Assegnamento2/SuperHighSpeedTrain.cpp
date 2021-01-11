@@ -86,13 +86,29 @@ void SuperHighSpeedTrain::clock(int t){
     if(timer>0){
         timer--;
         if(timer=0){        
-            nextMainStation->eventOutgoingTrain(this);                          //treno riparte
-            prevMainStation=nextMainStation;                                            //la stazione successiva diventa la precedente
-            if(direction==TrainDirection::FORWARD)          
-                nextMainStation=get_next_main_station(prevMainStation,*this);           //il puntatore va alla prossima stazione
-            else
-                nextMainStation=get_next_main_station(prevMainStation,*this);
+            nextMainStation->eventOutgoingTrain(this);                                  //treno riparte dalla stazione principale
             
+            prevStation=nextStation;                                                    //stazione successiva diventa la precedente
+
+            if(direction==TrainDirection::FORWARD){
+                if(nextStation==nextMainStation){                                       //se la stazione attuale è principale
+                    nextStation=nextStation->getNext();                                 //nextStation punta alla prossima stazione
+                    nextMainStation=get_next_main_station(prevMainStation, *this);      //nextMainStation punta alla prossima stazione principale
+                    prevMainStation=prevStation;                                        //prevMainStation invece coincide con prevStation;
+                }
+                else{                                                                   //se invece la stazione attuale non è principale
+                    nextStation=nextStation->getNext();                                 //sposto solo nextStation avanti
+                }
+            }else{
+                if(nextStation==nextMainStation){                                       //se la stazione attuale è principale                                           
+                    nextStation=nextStation->getPrev();                                 //nextStation punta alla prossima(precedente in lista)
+                    nextMainStation=get_next_main_station(prevMainStation, *this);      //nextMainStation punta alla prossima principale
+                    prevMainStation=prevStation;                                        //prevMainStation coincide con prevStation;
+                }
+                else{                                                                   //se invece la stazione attuale non è principale
+                    nextStation=nextStation->getPrev();                                 //sposto solo nextStation avanti                                 
+                }
+            }
         }
     }
 }
