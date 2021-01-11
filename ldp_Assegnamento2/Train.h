@@ -35,7 +35,7 @@ class Train{
         float getDistance() {return distance;}
         bool isEndline() {return endline;}
         
-        //COMUNICAZIONE CON STAZINE
+        //COMUNICAZIONE CON STAZIONE
         virtual void callTrain(StationSignal si) = 0;
 
         void callTrain(StationSignal si, Track* t){                                             //chiamata alla stazione con binario
@@ -87,8 +87,8 @@ class Train{
         int time;                                                   
 
         float distance;                                             //distanza totale percorsa da 0
-        Station* prevStation;                                          //stazione precedente
-        Station* nextStation;                                          //stazione successiva
+        Station* prevStation;                                       //stazione precedente
+        Station* nextStation;                                       //stazione successiva
 };
 
 class RegionalTrain : public Train{
@@ -104,8 +104,8 @@ class HighSpeedTrain : public Train{
 		void callTrain(StationSignal si);
         void clock(int t);
     protected:
-        Station* prevMainStation;
-        Station* nextMainStation;
+        Station* prevMainStation;                                   //stazione principale precedente
+        Station* nextMainStation;                                   //stazione principale successiva    
 };
 
 class SuperHighSpeedTrain : public Train{
@@ -114,8 +114,8 @@ class SuperHighSpeedTrain : public Train{
 		void callTrain(StationSignal si);
         void clock(int t);
     protected:
-        Station* prevMainStation;
-        Station* nextMainStation;
+        Station* prevMainStation;                                   //stazione principale precedente
+        Station* nextMainStation;                                   //stazione principale successiva
 };
 
 static int getTrainSpeed(TrainType elem){
