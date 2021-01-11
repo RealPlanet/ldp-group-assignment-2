@@ -18,33 +18,60 @@ HighSpeedTrain::HighSpeedTrain(int ID, TrainDirection dir, TrainLine* l, TrainTi
         nextStation=line->get_station_list().getLast()->getPrev();               //nextStation -> stazione precedente all'ultima
         
         prevMainStation=prevStation;                                             //prevMainStation e prevStation
-        nextStation=get_next_main_station(prevMainStation, *this);               //nextMainStation -> stazione principale precedente all'ultima
+        nextMainStation=get_next_main_station(prevMainStation, *this);           //nextMainStation -> stazione principale precedente all'ultima
     }
 }
 
+void HighSpeedTrain::callTrain(StationSignal si) {                                                       //chiamata alla stazione
+    if(si==StationSignal::DEPARTURE_ALLOW){
+		if(direction==TrainDirection::FORWARD && distance != 0)          
+			nextStation = nextStation->getNext();
+		else if (direction==TrainDirection::BACKWARD && distance != line->get_station_list().getLast()->getDistance())
+			nextStation = nextStation->getPrev();                                 //partenza dalla stazione
+
+		if (fabs(prevStation->getDistance()-distance)<0.67) {
+			currentSpeed=80;                                                                //rallenta la velocità
+			timer=-1;                                                                       //timer di sosta resettato
+			track=nullptr;                                                                  //binario dissociato
+		}
+		else {
+			parking=false;
+			currentSpeed=maxSpeed;
+			prevStation=nextStation;
+			track=nullptr;
+			timer=-1;
+			
+		}
+    }
+	else                                                                               //treno in arrivo
+		parking=true;                                                                   //treno si ferma in parcheggio
+}
+
 void HighSpeedTrain::clock(int t){
-    time=timeConversion(t);                                                 //conversione tempo
+    time=timeConversion(t);                                             //conversione tempo
     if(direction==TrainDirection::FORWARD)                 
-        distance+=currentSpeed/60.0;                                        //se il treno va avanti la distanza dall'origine aumenta
+        distance+=currentSpeed/60.0;                                    //se il treno va avanti la distanza dall'origine aumenta
     else
-        distance-=currentSpeed/60.0;                                        //se il treno va indietro la distanza dall'origine diminuisce
+        distance-=currentSpeed/60.0;                                    //se il treno va indietro la distanza dall'origine diminuisce
     
     int arrivalTime=getArrivalTime();
 
     //STAZIONI MAIN
     //treno parte dalla stazione origine
-    if(startline && time==timeConversion(arrivalTime)){                     //se il treno è alla stazione iniziale e arriva il suo orario
-        prevStation->eventOutgoingTrain(this);                              //treno parte
-        startline=false;                                                    //il treno non è più all'origine
+    if(startline && time==timeConversion(arrivalTime)){                 //se il treno è alla stazione iniziale e arriva il suo orario
+        prevStation->eventOutgoingTrain(this);                          //treno parte
+        startline=false;                                                //il treno non è più all'origine
     }
-
     //treno riprende la velocità dopo aver superato la stazione
     if(currentSpeed==80 && fabs(prevMainStation->getDistance()+distance)>5)
         currentSpeed=maxSpeed;
-
     //treno a 20km dalla stazione fa richiesta
     if(!parking && fabs(nextMainStation->getDistance()-distance)<20 && track==nullptr)
         nextMainStation->eventIncomingTrain(this, TrainRequest::STOP);
+	
+    //treno si avvicina ad una stazione locale
+    else if(!parking && fabs(nextStation->getDistance()-distance)<20 && track==nullptr && fabs(nextStation->getDistance()-distance)>15) 
+		nextStation->eventIncomingTrain(this, TrainRequest::TRANSIT);
     
     //treno fermo in parcheggio si sposta in stazione
     if(!parking && fabs(nextMainStation->getDistance()-distance)<5 && timer==-1)
@@ -53,62 +80,45 @@ void HighSpeedTrain::clock(int t){
     //treno arriva ai binari
     if(parking && fabs(nextMainStation->getDistance()-distance)<5 && currentSpeed!=0)
         currentSpeed=0;
-
-    //treno si avvicina ad una stazione locale
-    if(!parking && fabs(nextStation->getDistance()-distance)<20 && track==nullptr)
-        nextStation->eventIncomingTrain(this, TrainRequest::TRANSIT);
     
     //treno si ferma al parcheggio
     if(parking && fabs(nextStation->getDistance()-distance)<5 && currentSpeed!=0)
         currentSpeed=0;
 
     //treno riparte dal parcheggio
-    if(!parking && fabs(nextStation->getDistance()-distance)<5 && currentSpeed==0)
+    if(!parking && fabs(nextStation->getDistance()-distance)<5 && currentSpeed==0 && track==nullptr)
         currentSpeed=maxSpeed;
 
     //treno fermo in stazione
     if(timer==-1 && fabs(nextMainStation->getDistance()-distance)<0.67){
         currentSpeed=0;
-        if(visitedStations+1==line->get_station_list().iterable().size()-1){                //se arrivo al capolinea
+        if(visitedStations+1==line->get_station_list().getIndexMain().size()-1){                 //se arrivo al capolinea
                 endline=true;
                 track->update(TrackStatus::FREE);
-                std::cout << "Il treno " << trainID << " e' giunto al capolinea con " << getDelay() << " minuti di ritardo\n";
+				if (getDelay()>0)
+					std::cout << "\nIl treno " << trainID << " e' giunto al capolinea con " << getDelay() << " minuti di ritardo\n\n";
+				else
+					std::cout << "\nIl treno " << trainID << " e' giunto al capolinea in orario\n\n";
             }
         int delay=getDelay();
         if(delay>0)
-            std::cout << "Il treno è arrivato alla stazione " << nextMainStation->getLabel() << " con " << delay << " minuti di ritardo";
+            std::cout << "\nIl treno " << trainID << "e' arrivato alla stazione " << nextMainStation->getLabel() << " con " << delay << " minuti di ritardo\n\n";
         timer=5;                          //parte il timer in cui il treno sta fermo in stazione
         if(delay<0)                       //se il treno è in anticipo
             timer+= -delay;    
         visitedStations++;
     }
-
     if(timer>0){
         timer--;
-        if(timer=0){        
-            nextMainStation->eventOutgoingTrain(this);                                  //treno riparte dalla stazione principale
+        if(timer==0){        
+            nextMainStation->eventOutgoingTrain(this);                          //treno riparte
+            prevMainStation=nextMainStation;                                    //la stazione successiva diventa la precedente
+			prevStation=nextStation;
+            if(direction==TrainDirection::FORWARD)          
+                nextMainStation=get_next_main_station(prevMainStation,*this);           //il puntatore va alla prossima stazione
+            else 
+                nextMainStation=get_next_main_station(prevMainStation,*this);
             
-            prevStation=nextStation;                                                    //stazione successiva diventa la precedente
-
-            if(direction==TrainDirection::FORWARD){
-                if(nextStation==nextMainStation){                                       //se la stazione attuale è principale
-                    nextStation=nextStation->getNext();                                 //nextStation punta alla prossima stazione
-                    nextMainStation=get_next_main_station(prevMainStation, *this);      //nextMainStation punta alla prossima stazione principale
-                    prevMainStation=prevStation;                                        //prevMainStation invece coincide con prevStation;
-                }
-                else{                                                                   //se invece la stazione attuale non è principale
-                    nextStation=nextStation->getNext();                                 //sposto solo nextStation avanti
-                }
-            }else{
-                if(nextStation==nextMainStation){                                       //se la stazione attuale è principale                                           
-                    nextStation=nextStation->getPrev();                                 //nextStation punta alla prossima(precedente in lista)
-                    nextMainStation=get_next_main_station(prevMainStation, *this);      //nextMainStation punta alla prossima principale
-                    prevMainStation=prevStation;                                        //prevMainStation coincide con prevStation;
-                }
-                else{                                                                   //se invece la stazione attuale non è principale
-                    nextStation=nextStation->getPrev();                                 //sposto solo nextStation avanti                                 
-                }
-            }
         }
     }
 }

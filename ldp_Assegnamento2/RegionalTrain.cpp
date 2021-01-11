@@ -16,6 +16,16 @@ RegionalTrain::RegionalTrain(int ID, TrainDirection dir, TrainLine* l, TrainTime
     }
 }
 
+void RegionalTrain::callTrain(StationSignal si) {                                                       //chiamata alla stazione
+    if(si==StationSignal::DEPARTURE_ALLOW){                                             //partenza dalla stazione
+        currentSpeed=80;                                                                //rallenta la velocità
+        timer=-1;                                                                       //timer di sosta resettato
+		track=nullptr;                                                                  //binario dissociato
+    }
+	else                                                                               //treno in arrivo
+		parking=true;                                                                   //treno si ferma in parcheggio
+}
+
 void RegionalTrain::clock(int t){
     time=timeConversion(t);                                     //conversione tempo
 
@@ -53,24 +63,26 @@ void RegionalTrain::clock(int t){
         if(visitedStations+1==line->get_station_list().iterable().size()-1){                 //se arrivo al capolinea
                 endline=true;
                 track->update(TrackStatus::FREE);
-                std::cout << "Il treno " << trainID << " e' giunto al capolinea con " << getDelay() << " minuti di ritardo\n";
+				if (getDelay()>0)
+					std::cout << "\nIl treno " << trainID << " e' giunto al capolinea con " << getDelay() << " minuti di ritardo\n\n";
+				else
+					std::cout << "\nIl treno " << trainID << " e' giunto al capolinea in orario\n\n";
             }
 
         int delay=getDelay();
         if(delay>0)
-            std::cout << "Il treno è arrivato alla stazione " << nextStation->getLabel() << "con " << delay << " minuti di ritardo";
+            std::cout << "\nIl treno " << trainID << "e' arrivato alla stazione " << nextStation->getLabel() << "con " << delay << " minuti di ritardo\n\n";
 
         timer=5;                          //parte il timer in cui il treno sta fermo in stazione
         if(delay<0)                       //se il treno è in anticipo
             timer+= -delay;    
-
         visitedStations++;
 
     }
 
     if(timer>0){
         timer--;
-        if(timer=0){        
+        if(timer==0){        
             nextStation->eventOutgoingTrain(this);          //treno riparte
             prevStation=nextStation;                        //i due puntatori coincidono 
             if(direction==TrainDirection::FORWARD)          

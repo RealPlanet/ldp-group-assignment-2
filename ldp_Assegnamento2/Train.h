@@ -6,6 +6,7 @@
 #include "Station.h"
 #include "TrainTime.h"
 #include "Track.h"
+#include <tgmath.h>
 
 static int getTrainSpeed(TrainType elem);
 
@@ -30,19 +31,12 @@ class Train{
         TrainType getTrainType() {return trainType;}
         int getMaxSpeed() {return maxSpeed;}
         int getTrainID() {return trainID;}
+		Track* getTrack() {return track;}
         float getDistance() {return distance;}
         bool isEndline() {return endline;}
         
         //COMUNICAZIONE CON STAZINE
-        void callTrain(StationSignal si){                                                       //chiamata alla stazione
-            if(si==StationSignal::DEPARTURE_ALLOW){                                             //partenza dalla stazione
-                currentSpeed=80;                                                                //rallenta la velocità
-                timer=-1;                                                                       //timer di sosta resettato
-                track=nullptr;                                                                  //binario dissociato
-            }
-            else                                                                               //treno in arrivo
-                parking=true;                                                                   //treno si ferma in parcheggio
-        }
+        virtual void callTrain(StationSignal si) = 0;
 
         void callTrain(StationSignal si, Track* t){                                             //chiamata alla stazione con binario
             parking=false;                                                                      //treno non si ferma in parcheggio
@@ -82,7 +76,7 @@ class Train{
 
         int visitedStations;                                        //contatore delle stazioni visitate
 
-        Track* track;                                               //binario associato in arrivo alla stazione
+        Track* track = nullptr;                                     //binario associato in arrivo alla stazione
 
         TrainLine* line;                                            //linea associata al treno
         TrainTime* trainTime;                                       //tabella degli orari associata al treno
@@ -100,14 +94,14 @@ class Train{
 class RegionalTrain : public Train{
     public:
         RegionalTrain(int ID, TrainDirection dir, TrainLine* l, TrainTime* time);
-    
+		void callTrain(StationSignal si);
         void clock(int t);
 };
 
 class HighSpeedTrain : public Train{
     public:
         HighSpeedTrain(int ID, TrainDirection dir, TrainLine* l, TrainTime* time);
-    
+		void callTrain(StationSignal si);
         void clock(int t);
     protected:
         Station* prevMainStation;
@@ -117,7 +111,7 @@ class HighSpeedTrain : public Train{
 class SuperHighSpeedTrain : public Train{
     public:
         SuperHighSpeedTrain(int ID, TrainDirection dir, TrainLine* l, TrainTime* time);
-    
+		void callTrain(StationSignal si);
         void clock(int t);
     protected:
         Station* prevMainStation;
