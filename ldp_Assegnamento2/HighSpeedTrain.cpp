@@ -63,7 +63,7 @@ void HighSpeedTrain::clock(int t){
         currentSpeed=0;
 
     //treno riparte dal parcheggio
-    if(!parking && fabs(nextStation->getDistance()-distance)<5 && currentSpeed=0)
+    if(!parking && fabs(nextStation->getDistance()-distance)<5 && currentSpeed==0)
         currentSpeed=maxSpeed;
 
     //treno fermo in stazione
@@ -89,23 +89,26 @@ void HighSpeedTrain::clock(int t){
             nextMainStation->eventOutgoingTrain(this);                                  //treno riparte dalla stazione principale
             
             prevStation=nextStation;                                                    //stazione successiva diventa la precedente
-            //TODO:: GESTIRE I PUNTATORI POST PARTENZA
-            
-            
-            
-            /*
-            prevMainStation=nextMainStation;                                            //la stazione successiva diventa la precedente
-            prevStation=nextStation;
 
-            if(direction==TrainDirection::FORWARD){  
-                nextStation=nextStation->getNext();                                     //il puntatore va alla prossima stazione locale
-                nextMainStation=get_next_main_station(prevMainStation,*this);           //il puntatore va alla prossima stazione principale
+            if(direction==TrainDirection::FORWARD){
+                if(nextStation==nextMainStation){                                       //se la stazione attuale è principale
+                    nextStation=nextStation->getNext();                                 //nextStation punta alla prossima stazione
+                    nextMainStation=get_next_main_station(prevMainStation, *this);      //nextMainStation punta alla prossima stazione principale
+                    prevMainStation=prevStation;                                        //prevMainStation invece coincide con prevStation;
+                }
+                else{                                                                   //se invece la stazione attuale non è principale
+                    nextStation=nextStation->getNext();                                 //sposto solo nextStation avanti
+                }
+            }else{
+                if(nextStation==nextMainStation){                                       //se la stazione attuale è principale                                           
+                    nextStation=nextStation->getPrev();                                 //nextStation punta alla prossima(precedente in lista)
+                    nextMainStation=get_next_main_station(prevMainStation, *this);      //nextMainStation punta alla prossima principale
+                    prevMainStation=prevStation;                                        //prevMainStation coincide con prevStation;
+                }
+                else{                                                                   //se invece la stazione attuale non è principale
+                    nextStation=nextStation->getPrev();                                 //sposto solo nextStation avanti                                 
+                }
             }
-            else{
-                nextStation=nextStation->getPrev();                                     //il puntatore va alla stazione locale precedente(la prossima)
-                nextMainStation=get_next_main_station(prevMainStation,*this);           //il puntatore va alla stazione principale precedente(la prossima)
-            }
-            */
         }
     }
 }

@@ -106,8 +106,7 @@ class RegionalTrain : public Train{
 
 class HighSpeedTrain : public Train{
     public:
-        HighSpeedTrain(int ID, TrainDirection dir, TrainLine* l, TrainTime* time){
-        };
+        HighSpeedTrain(int ID, TrainDirection dir, TrainLine* l, TrainTime* time);
     
         void clock(int t);
     protected:
