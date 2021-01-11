@@ -6,7 +6,7 @@
 #include "Station.h"
 #include "TrainTime.h"
 #include "Track.h"
-#include <ctgmath.h>
+#include <ctgmath>
 
 static int getTrainSpeed(TrainType elem);
 

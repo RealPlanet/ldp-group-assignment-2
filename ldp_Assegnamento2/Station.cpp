@@ -2,7 +2,7 @@
 
 #include "Station.h"
 #include "Train.h"
-#include <tgmath.h>
+#include <ctgmath>
 
 /**
  * @brief Destructor of the class station.
