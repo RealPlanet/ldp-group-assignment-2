@@ -48,13 +48,13 @@ class Train{
 
         //RITARDO TRENI
         int getDelay(){
-            int t=trainTime->get_train_info(trainID).m_train_times.at(visitedStations+1);        //differenza tra orario corrente e previsto
+            int t=trainTime->get_train_info(trainID).m_train_times.at((size_t)visitedStations+1);        //differenza tra orario corrente e previsto
             return time-timeConversion(t);
         }
 
         //ORARIO DI ARRIVO PREVISTO ALLA STAZIONE SUCCESSIVA
         int getNextArrivalTime(){
-            return trainTime->get_train_info(trainID).m_train_times.at(visitedStations+1);       //ritorna l'orario previsto alla stazione+1(successiva)
+            return trainTime->get_train_info(trainID).m_train_times.at((size_t)visitedStations+1);       //ritorna l'orario previsto alla stazione+1(successiva)
         }
 
         int getArrivalTime(){
@@ -84,7 +84,7 @@ class Train{
         int maxSpeed;                                               //velocità massima
         int currentSpeed;                                           //velocità di crociera
 
-        int time;
+        int time=0;
 
         float distance;                                             //distanza totale percorsa da 0
         Station* prevStation=nullptr;                               //stazione precedente
