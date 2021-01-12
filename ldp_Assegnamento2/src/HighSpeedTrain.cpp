@@ -1,6 +1,6 @@
 // @author Arjun Jassal, 1219611
-#include "Train.h"
-#include "TrainLine.h"
+#include "..\include\Train.h"
+#include "..\include\TrainLine.h"
 
 HighSpeedTrain::HighSpeedTrain(int ID, TrainDirection dir, TrainLine* l, TrainTime* time) 
         : Train(ID, TrainType::ALTA_VELOCITA, dir, l, time){
@@ -51,9 +51,9 @@ void HighSpeedTrain::callTrain(StationSignal si) {                              
 void HighSpeedTrain::clock(int t){
     time=timeConversion(t);                                             //conversione tempo
     if(direction==TrainDirection::FORWARD)                 
-        distance+=currentSpeed/60.0;                                    //se il treno va avanti la distanza dall'origine aumenta
+        distance+=currentSpeed/60.0f;                                    //se il treno va avanti la distanza dall'origine aumenta
     else
-        distance-=currentSpeed/60.0;                                    //se il treno va indietro la distanza dall'origine diminuisce
+        distance-=currentSpeed/60.0f;                                    //se il treno va indietro la distanza dall'origine diminuisce
     
     int arrivalTime=getArrivalTime();
 
@@ -103,8 +103,10 @@ void HighSpeedTrain::clock(int t){
 					std::cout << "\nIl treno " << trainID << " e' giunto al capolinea in orario\n\n";
             }
         int delay=getDelay();
-        if(delay>0)
-            std::cout << "\nIl treno " << trainID << "e' arrivato alla stazione " << nextMainStation->getLabel() << " con " << delay << " minuti di ritardo\n\n";
+        if (delay > 0)
+            std::cout << "\nIl treno " << trainID << " e' arrivato alla stazione " << nextStation->getLabel() << "con " << delay << " minuti di ritardo, l'orario attuale e\' " << t << "\n\n";
+        else
+            std::cout << "\nIl treno " << trainID << " e' arrivato alla stazione " << nextStation->getLabel() << "senza ritardo, l'orario attuale e\' " << t << "\n\n";
         timer=5;                        //parte il timer in cui il treno sta fermo in stazione
         if(delay<0)                     //se il treno è in anticipo
             timer+= -delay;    

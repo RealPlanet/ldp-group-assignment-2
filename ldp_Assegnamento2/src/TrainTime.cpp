@@ -7,9 +7,9 @@
 #include <sstream>
 #include <algorithm>
 #include <string>
-#include "TrainLine.h"
-#include "TrainTime.h"
-#include "Train.h"
+#include "..\include\TrainLine.h"
+#include "..\include\TrainTime.h"
+#include "..\include\Train.h"
 
 using std::ifstream;
 using std::ios;
@@ -39,6 +39,12 @@ bool TrainTime::register_timetable(const std::string file_name, const TrainLine*
 
     while (getline(timetable, newLine)) //Prendi una riga dal file
     {
+        if (newLine == "") //Ferma la registrazione se si arriva ad una riga vuota (es. viene riga vuota alla fine del fine)
+        {
+            std::cout << "[INFO] Reached EOF for train times file \n";
+            break;
+        }
+
         stringstream ss{ newLine }; //Converti la ringa in uno stream
         TrainInfo newTrainInfo = {};
 
@@ -69,9 +75,10 @@ bool TrainTime::register_timetable(const std::string file_name, const TrainLine*
             newTrainInfo.m_train_times.push_back(actualTime); 
         }
 
+        // Se mancano orari vengono creati automaticamente
         while (newTrainInfo.m_train_times.size() < station_size)
         {
-            int actualTime = is_valid_time(trainNumber, trainStartingStation, 0, newTrainInfo.m_train_type, newTrainInfo.m_train_times, line);
+            int actualTime = is_valid_time(trainNumber, trainStartingStation, -1, newTrainInfo.m_train_type, newTrainInfo.m_train_times, line);
             newTrainInfo.m_train_times.push_back(actualTime);
         }
 
@@ -88,42 +95,14 @@ bool TrainTime::register_timetable(const std::string file_name, const TrainLine*
 
 TrainInfo TrainTime::get_train_info(int train_number) const
 {
-    // TODO :: Boundary check ??
+    //Ottieni le informazioni di un treno, lancia un'eccezione se out of bounds
     TrainInfo requested_info = m_timetable.at(train_number);
-
     return requested_info;
-}
-
-int TrainTime::get_train_number() const
-{
-    return (int)m_timetable.size();
-}
-
-void TrainTime::update_train_time(const int train_number, const int station, const int newTime, bool isDelay)
-{
-    int time = abs(newTime); // Valore assoluto per conti successivi
-
-    if (!isDelay) //Se è un ritardo allora si somma all'orario attuale, altrimenti si sottrae
-    {
-        time = 0 - time;
-    }
-
-    std::cout << "[INFO] Aggiornato tempo della stazione " << station << "per il treno numero " << train_number;
-    Time sTime = convert_mil_to_time(newTime);
-    if (isDelay)
-    {
-        
-        std::cout << " aggiunto ritardo di " << sTime.hour << "ore e " << sTime.minutes << "minuti" << std::endl;
-    }
-    else
-    {
-        std::cout << " treno in anticipo di " << sTime.hour << "ore e " << sTime.minutes << "minuti" << std::endl;
-    }
-    m_timetable.at(train_number).m_train_times[station] += newTime; //Aggiorna l'orario
 }
 
 std::vector<int> TrainTime::get_timetable_trains()
 {
+    //Crea un vettore contenente le chiavi della mappa timetable
     std::vector<int> tempKey;
 
     auto cursor = m_timetable.begin();
@@ -139,56 +118,28 @@ std::vector<int> TrainTime::get_timetable_trains()
 
 int TrainTime::is_valid_time(const int& train_number, const int& trainStartingStation, const int& time, const TrainType& train_type, const std::vector<int>& timetable, const TrainLine* line)
 {
-    int trainSpeed = 100; //Train::getTrainSpeed(train_type);
+    int trainSpeed = getTrainSpeed(train_type);
     int prevDepartureTime = 0;
     if (timetable.size() > 0)
     {
         prevDepartureTime = timetable[timetable.size() - 1] / 100 * 60 + timetable[timetable.size() - 1] % 100;
-    }
+    } // Se non esiste stazione un orario precedente allora questo tempo è per forza valido non si fà altro
     else return time;
     StationInfo stationDistance = line->get_station_distances((int)timetable.size(), trainStartingStation, train_type);
+    // Fai un confronto senza considerare eventi che possono rallentare il treno (es: ritardi, limiti di velocità)
     int temptime = (time / 100 * 60 + time % 100) - prevDepartureTime;
     int minTime = (int)(stationDistance.m_prev_station_distance / trainSpeed * 60);
+
     if (temptime >= minTime)
     {
         return time;
     }
     else
     {
+        //Tempo minimo di un treno per arrivare alla stazione consideranto possibili rallentamenti e un margine di 10 minuti
         int newTime = (prevDepartureTime + (int)minTime + 10) / 60 * 100 + (prevDepartureTime + (int)minTime + 10) % 60;
-        std::cout << "[INFO] Nuovo tempo calcolato per treno numero: " << train_number << ", tempo cambiato da: " << time << " a " << newTime << std::endl;
+        if(time > 0) std::cout << "[INFO] Nuovo tempo calcolato per treno numero: " << train_number << ", tempo cambiato da: " << time << " a " << newTime << std::endl;
         return newTime;
     }
-}
-
-/*
-* Funzione che permette di convertire i tempi letti da timetables.txt in uno struct che divide ore e minuti
-*/
-Time convert_mil_to_time(const int time)
-{
-    std::string tempTime = std::to_string(time);
-    char hour[2] = { '\0' };
-    char minutes[2] = { '\0' };
-
-    tempTime.copy(hour, 2, 0);
-    tempTime.copy(minutes, 2, 2);
-
-    Time s = {};
-    s.hour = atoi(hour);
-    s.minutes = atoi(minutes);
-
-    return s;
-}
-
-/*
-* Funzione che permette di convertire uno struct Time in tempo militare
-*/
-int convert_time_to_mil(Time time)
-{
-    stringstream s = {};
-    string string_time = "";
-    s << time.hour << time.minutes;
-    string_time = s.str();
-    return std::stoi(string_time);
 }
 

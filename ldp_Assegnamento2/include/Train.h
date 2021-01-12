@@ -3,10 +3,10 @@
 
 // @author Arjun Jassal, 1219611
 #include "generics.h"
-#include "Station.h"
-#include "TrainTime.h"
-#include "Track.h"
-#include <tgmath.h>
+#include "..\include\Station.h"
+#include "..\include\TrainTime.h"
+#include "..\include\Track.h"
+#include <ctgmath>
 
 static int getTrainSpeed(TrainType elem);
 
@@ -34,7 +34,7 @@ class Train{
 		Track* getTrack() {return track;}
         float getDistance() {return distance;}
         bool isEndline() {return endline;}
-        
+
         //COMUNICAZIONE CON STAZIONE
         virtual void callTrain(StationSignal si) = 0;
 
@@ -48,20 +48,20 @@ class Train{
 
         //RITARDO TRENI
         int getDelay(){
-            int t=trainTime->get_train_info(trainID).m_train_times.at(visitedStations+1);        //differenza tra orario corrente e previsto
+            int t=trainTime->get_train_info(trainID).m_train_times.at((size_t)visitedStations+1);        //differenza tra orario corrente e previsto
             return time-timeConversion(t);
         }
 
         //ORARIO DI ARRIVO PREVISTO ALLA STAZIONE SUCCESSIVA
         int getNextArrivalTime(){
-            return trainTime->get_train_info(trainID).m_train_times.at(visitedStations+1);       //ritorna l'orario previsto alla stazione+1(successiva)
+            return trainTime->get_train_info(trainID).m_train_times.at((size_t)visitedStations+1);       //ritorna l'orario previsto alla stazione+1(successiva)
         }
 
         int getArrivalTime(){
             return trainTime->get_train_info(trainID).m_train_times.at(visitedStations);
         }
 
-    
+
     protected:
         int trainID;                                                //ID del treno
         TrainType trainType;                                        //tipo del treno
@@ -71,7 +71,7 @@ class Train{
 
         bool startline=true;                                        //controllo se è la prima stazione della linea
         bool endline=false;                                         //controllo se è l'ultima stazione della linea
-        
+
         bool parking=false;                                         //controllo se va in parcheggio o no
 
         int visitedStations;                                        //contatore delle stazioni visitate
@@ -84,11 +84,11 @@ class Train{
         int maxSpeed;                                               //velocità massima
         int currentSpeed;                                           //velocità di crociera
 
-        int time;                                                   
+        int time=0;
 
         float distance;                                             //distanza totale percorsa da 0
-        Station* prevStation;                                       //stazione precedente
-        Station* nextStation;                                       //stazione successiva
+        Station* prevStation=nullptr;                               //stazione precedente
+        Station* nextStation=nullptr;                               //stazione successiva
 };
 
 class RegionalTrain : public Train{
@@ -104,8 +104,8 @@ class HighSpeedTrain : public Train{
 		void callTrain(StationSignal si);
         void clock(int t);
     protected:
-        Station* prevMainStation;                                   //stazione principale precedente
-        Station* nextMainStation;                                   //stazione principale successiva    
+        Station* prevMainStation=nullptr;                                   //stazione principale precedente
+        Station* nextMainStation=nullptr;                                   //stazione principale successiva
 };
 
 class SuperHighSpeedTrain : public Train{
@@ -114,8 +114,8 @@ class SuperHighSpeedTrain : public Train{
 		void callTrain(StationSignal si);
         void clock(int t);
     protected:
-        Station* prevMainStation;                                   //stazione principale precedente
-        Station* nextMainStation;                                   //stazione principale successiva
+        Station* prevMainStation=nullptr;                                   //stazione principale precedente
+        Station* nextMainStation=nullptr;                                   //stazione principale successiva
 };
 
 static int getTrainSpeed(TrainType elem){

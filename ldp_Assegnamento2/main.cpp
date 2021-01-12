@@ -1,14 +1,18 @@
 // @author Matteo Salvalaio, 1216361
 
-#include "TrainLine.h"
-#include "TrainTime.h"
-#include "Station.h"
-#include "Train.h"
+#include "include\TrainLine.h"
+#include "include\TrainTime.h"
+#include "include\Station.h"
+#include "include\Train.h"
 
 void run_simulation() {
 	std::cout << "[WORKER] Generating the train line...\n\n";
 	TrainLine* line = new TrainLine;                                          //Generation of the train line
-	line->register_stations("line_description.txt");
+	if (!line->register_stations("line_description.txt"))
+	{
+		std::cout << "[INFO] No line_description.txt file was found in root folder \n";
+		return;
+	}
 	
 	std::cout << "[WORKER] " << line->get_station_list().iterable().size() << " stations have been generated: ";
 	for (Station* station : line->get_station_list().iterable()) std::cout << station->getLabel();
@@ -16,7 +20,11 @@ void run_simulation() {
 	
 	std::cout << "\n[WORKER] Generating the time tables...\n\n";
 	TrainTime* timetable = new TrainTime;                                     //Generation of the time tables
-	timetable->register_timetable("timetables.txt",line);
+	if (!timetable->register_timetable("timetables.txt", line))
+	{
+		std::cout << "[INFO] No timetables.txt file was found in root folder \n";
+		return;
+	}
 	
 	std::cout << "\n[WORKER] Generating the trains...\n\n";
 	
@@ -37,11 +45,12 @@ void run_simulation() {
 	int time = 0;
 	while (trains.size() > 0) {                                              //The simulation keep running until there no more trains left
 	
+		/*
 		for (int index = trains.size()-1; index >= 0; index--) {
 			if (time%30==0)std::cout << "[" << (int)trains.at(index)->getDistance() << "]-" << trains.at(index)->getTrainID() << " ";
 		}
 		if (time%30==0)std::cout << "\n";
-		
+		*/
 		
 		for (int index = trains.size()-1; index >= 0; index--) {
 			trains.at(index)->clock(time/60*100+time%60);                    //Call each train to update their position
@@ -62,5 +71,8 @@ void run_simulation() {
 
 int main(int argc, char *argv[]) {
 	run_simulation();                                                        //Start the simulation
+	int t = 0;
+	std::cout << "Premi un tasto per continuare...\n";
+	std::cin >> t;
 	return 0;
 }

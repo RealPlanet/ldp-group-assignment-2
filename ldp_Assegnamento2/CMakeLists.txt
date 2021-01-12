@@ -1,0 +1,36 @@
+cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+
+project(ldp_Assegnamento2 C CXX)
+
+add_executable(main main.cpp)
+
+# Fabio
+add_library(TrainLine include/TrainLine.h src/TrainLine.cpp)
+add_library(TrainTime include/TrainTime.h src/TrainTime.cpp)
+add_library(Track include/Track.h src/Track.cpp)
+add_library(StandardTrack include/StandardTrack.h src/StandardTrack.cpp)
+add_library(TransitTrack include/TransitTrack.h src/TransitTrack.cpp)
+add_library(generics include/generics.h src/generics.cpp)
+# Aj
+add_library(Train include/Train.h src/Train.cpp)
+add_library(SuperHighSpeedTrain include/Train.h src/SuperHighSpeedTrain.cpp)
+add_library(HighSpeedTrain include/Train.h src/HighSpeedTrain.cpp)
+add_library(RegionalTrain include/Train.h src/RegionalTrain.cpp)
+# Matteo
+add_library(TrainPQ include/TrainPQ.h src/TrainPQ.cpp)
+add_library(StationList include/StationList.h src/StationList.cpp)
+add_library(Station include/Station.h src/Station.cpp)
+
+target_link_libraries(main TrainLine)
+target_link_libraries(main TrainTime)
+target_link_libraries(main Track)
+target_link_libraries(main StandardTrack)
+target_link_libraries(main TransitTrack)
+target_link_libraries(main generics)
+target_link_libraries(main Train)
+target_link_libraries(main RegionalTrain)
+target_link_libraries(main HighSpeedTrain)
+target_link_libraries(main SuperHighSpeedTrain)
+target_link_libraries(main TrainPQ)
+target_link_libraries(main StationList)
+target_link_libraries(main Station)

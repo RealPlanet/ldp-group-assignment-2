@@ -17,7 +17,7 @@
 // Tipi possibili di un treno
 enum class TrainType
 {
-	NOT_A_TRAIN,
+	NOT_A_TRAIN, //Placeholder
 	REGIONALE,
 	ALTA_VELOCITA,
 	ALTA_VELOCITA_SUPER
@@ -75,7 +75,6 @@ enum class StationSignal
 	ARRIVAL_DENY,
 	DEPARTURE_ALLOW
 };
-
 /*
 	END OF ENUMS
 */
@@ -94,12 +93,4 @@ struct StationInfo
 	float m_prev_station_distance;
 	float m_next_station_distance;
 };
-
-// Piccola struttura per agevolare la tesione dei tempi per i treni
-struct Time
-{
-	int hour;
-	int minutes;
-};
-
 #endif // !generics_h
