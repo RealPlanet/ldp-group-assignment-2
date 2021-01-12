@@ -61,7 +61,7 @@ void Station::eventOutgoingTrain(Train* train) {
 	if (train->getTrainDirection() == TrainDirection::FORWARD) way = forward;
 	else way = backward;
 	if ((way == forward && !hasNext()) || (way == backward && !hasPrev())) throw ImpossibleDeparturesException();
-	std::cout << "[ " << train->getTrainID() << " ---call---> " << label << " ] The train is ready to depart\n";
+	std::cout << "The train " << train->getTrainID() << " is ready to depart from " << label << "\n";
 	way->departures.push(train);
 	callDepartures(way);
 }
@@ -93,7 +93,7 @@ void Station::eventDepartedTrain(int time, LineWay* way) {
 	if (time > way->nextTime && way->departures.getSize()!=0) {
 		if (way->departures.top()->getTrack() != nullptr) way->departures.top()->getTrack()->update(TrackStatus::FREE);
 		way->departures.top()->callTrain(StationSignal::DEPARTURE_ALLOW);
-		std::cout << "[ " << way->departures.top()->getTrainID() << " ---call---> " << label << " ] The train is departing from the station\n";
+		std::cout << "The train " << way->departures.top()->getTrainID() << " is departing from the station " << label << " at " << time/60*100+time%60 << "\n";
 		
 		way->lastTime = time;
 		way->lastTrain = way->departures.top();
@@ -113,7 +113,7 @@ void Station::callArrivals(LineWay* way) {
 		if (isTrackFree(TrackType::STANDARD, way) && (way->arrivals.top()->getDelay() > -aheadTolerace)) {
 			Track* track = getTrack(TrackType::STANDARD, way);
 			way->arrivals.top()->callTrain(StationSignal::ARRIVAL_ALLOW,track);
-			std::cout << "[ " << label << " ---call---> " << way->arrivals.top()->getTrainID() << " ] The train is allowed to go to the station\n";
+			std::cout << "The train " << way->arrivals.top()->getTrainID() << " is allowed to go to the station " << label << "\n";
 			track->update(TrackStatus::OCCUPIED);
 			way->arrivals.pop();
 		}
@@ -171,18 +171,18 @@ void MainStation::eventIncomingTrain(Train* train, TrainRequest request) {
 	else way = backward;
 		
 	if (request == TrainRequest::STOP) {
-		std::cout << "[ " << train->getTrainID() << " ---call---> " << label << " ] for requesting a stop at the station\n";
+		std::cout << "The train " << train->getTrainID() << " is requesting a stop at the station " << label << "\n";
 		if (isTrackFree(TrackType::STANDARD, way) && (train->getDelay() > -aheadTolerace)) {
 			Track* track = getTrack(TrackType::STANDARD, way);
 			train->callTrain(StationSignal::ARRIVAL_ALLOW,track);
 			track->update(TrackStatus::OCCUPIED);
 			
-			std::cout << "[ " << label << " ---call---> " << train->getTrainID() << " ] The train is allowed to go to the station\n";
+			std::cout << "The train " << train->getTrainID() << " is allowed to go to the station " << label << "\n";
 			return;
 		}
 		way->arrivals.push(train);
 		train->callTrain(StationSignal::ARRIVAL_DENY);
-		std::cout << "[ " << label << " ---call---> " << train->getTrainID() << " ] The train must go to the parking of the station\n";
+		std::cout << "The train " << train->getTrainID() << " must go to the parking of the station " << label << "\n";
 		return;
 	}
 	throw InvalidRequestException();
@@ -241,25 +241,25 @@ void LocalStation::eventIncomingTrain(Train* train, TrainRequest request) {
 	else way = backward;
 		
 	if (request == TrainRequest::STOP) {
-		std::cout << "[ " << train->getTrainID() << " ---call---> " << label << " ] for requesting a stop at the station\n";
+		std::cout << "The train " << train->getTrainID() << " is requesting a stop at the station " << label << "\n";
 		
 		if (isTrackFree(TrackType::STANDARD, way) && (train->getDelay() > -aheadTolerace)) {
 			Track* track = getTrack(TrackType::STANDARD, way);
 			train->callTrain(StationSignal::ARRIVAL_ALLOW,track);
 			track->update(TrackStatus::OCCUPIED);
 			
-			std::cout << "[ " << label << " ---call---> " << train->getTrainID() << " ] The train is allowed to go to the station\n";
+			std::cout << "The train " << train->getTrainID() << " is allowed to go to the station " << label << "\n";
 			return;
 		}
 		way->arrivals.push(train);
 		train->callTrain(StationSignal::ARRIVAL_DENY);
-		std::cout << "[ " << label << " ---call---> " << train->getTrainID() << " ] The train must go to the parking of the station\n";
+		std::cout << "The train " << train->getTrainID() << " must go to the parking of the station " << label << "\n";
 		return;
 	}
-	std::cout << "[ " << train->getTrainID() << " ---call---> " << label << " ] for requesting a transit at the station\n";
+	std::cout << "The train " << train->getTrainID() << " is requesting a transit at the station " << label << "\n";
 	way->departures.push(train);
 	callDepartures(way);
-	std::cout << "[ " << label << " ---call---> " << train->getTrainID() << " ] The train must go to the parking of the station\n";
+	std::cout << "The train " << train->getTrainID() << " must go to the parking of the station " << label << "\n";
 	train->callTrain(StationSignal::ARRIVAL_DENY);
 }
 
