@@ -3,9 +3,9 @@
 
 // @author Arjun Jassal, 1219611
 #include "generics.h"
-#include "Station.h"
-#include "TrainTime.h"
-#include "Track.h"
+#include "..\include\Station.h"
+#include "..\include\TrainTime.h"
+#include "..\include\Track.h"
 #include <ctgmath>
 
 static int getTrainSpeed(TrainType elem);

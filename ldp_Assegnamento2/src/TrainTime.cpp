@@ -7,9 +7,9 @@
 #include <sstream>
 #include <algorithm>
 #include <string>
-#include "TrainLine.h"
-#include "TrainTime.h"
-#include "Train.h"
+#include "..\include\TrainLine.h"
+#include "..\include\TrainTime.h"
+#include "..\include\Train.h"
 
 using std::ifstream;
 using std::ios;

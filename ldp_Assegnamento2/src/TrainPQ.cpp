@@ -1,10 +1,10 @@
 // @author Matteo Salvalaio, 1216361
 
-#include "TrainPQ.h"
-#include "Train.h"
-#include "Station.h"
-#include "Track.h"
-#include "generics.h"
+#include "..\include\TrainPQ.h"
+#include "..\include\Train.h"
+#include "..\include\Station.h"
+#include "..\include\Track.h"
+#include "..\include\generics.h"
 
 /**
  * @brief Add a new element to the queue.

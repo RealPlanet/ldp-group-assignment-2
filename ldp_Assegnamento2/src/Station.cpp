@@ -1,7 +1,7 @@
 // @author Matteo Salvalaio, 1216361
 
-#include "Station.h"
-#include "Train.h"
+#include "..\include\Station.h"
+#include "..\include\Train.h"
 #include <ctgmath>
 
 /**

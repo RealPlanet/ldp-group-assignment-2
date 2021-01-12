@@ -2,11 +2,10 @@
 /*
     Fabio Ruscica - 1229076
 */
-
-#include "TrainLine.h"
-#include "generics.h"
-#include "Station.h"
-#include "Train.h"
+#include "..\include\generics.h"
+#include "..\include\TrainLine.h"
+#include "..\include\Station.h"
+#include "..\include\Train.h"
 #include <string>
 #include <sstream>
 #include <fstream>

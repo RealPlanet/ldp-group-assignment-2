@@ -1,9 +1,9 @@
 // @author Matteo Salvalaio, 1216361
 
-#include "TrainLine.h"
-#include "TrainTime.h"
-#include "Station.h"
-#include "Train.h"
+#include "include\TrainLine.h"
+#include "include\TrainTime.h"
+#include "include\Station.h"
+#include "include\Train.h"
 
 void run_simulation() {
 	std::cout << "[WORKER] Generating the train line...\n\n";

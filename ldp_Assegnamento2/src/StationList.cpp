@@ -1,7 +1,7 @@
 // @author Matteo Salvalaio, 1216361
 
-#include "StationList.h"
-#include "Station.h"
+#include "..\include\StationList.h"
+#include "..\include\Station.h"
 
 /**
  * @brief Destructor of the class StationList.

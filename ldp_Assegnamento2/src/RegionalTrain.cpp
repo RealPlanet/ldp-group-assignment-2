@@ -1,6 +1,6 @@
 // @author Arjun Jassal, 1219611
-#include "Train.h"
-#include "TrainLine.h"
+#include "..\include\Train.h"
+#include "..\include\TrainLine.h"
 
 RegionalTrain::RegionalTrain(int ID, TrainDirection dir, TrainLine* l, TrainTime* time) 
         : Train(ID, TrainType::REGIONALE, dir, l, time){

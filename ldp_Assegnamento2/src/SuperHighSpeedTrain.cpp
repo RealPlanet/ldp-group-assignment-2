@@ -1,10 +1,10 @@
 // @author Arjun Jassal, 1219611
-#include "Train.h"
-#include "TrainLine.h"
+#include "..\include\Train.h"
+#include "..\include\TrainLine.h"
 
-HighSpeedTrain::HighSpeedTrain(int ID, TrainDirection dir, TrainLine* l, TrainTime* time) 
-        : Train(ID, TrainType::ALTA_VELOCITA, dir, l, time){
-
+SuperHighSpeedTrain::SuperHighSpeedTrain(int ID, TrainDirection dir, TrainLine* l, TrainTime* time) 
+        : Train(ID, TrainType::ALTA_VELOCITA_SUPER, dir, l, time){
+            
     if(dir==TrainDirection::FORWARD){
         prevStation=line->get_station_list().getFirst();                        //prevStation -> prima stazione della linea
         nextStation=line->get_station_list().getFirst()->getNext();             //nextStation -> prossima stazione nella linea
@@ -13,7 +13,7 @@ HighSpeedTrain::HighSpeedTrain(int ID, TrainDirection dir, TrainLine* l, TrainTi
         nextMainStation=get_next_main_station(prevMainStation, *this);          //nextMainStation -> prossima stazione principale
     }
     else if(dir==TrainDirection::BACKWARD){
-        distance=line->get_station_list().getLast()->getDistance();                           
+        distance=line->get_station_list().getLast()->getDistance();                          
         
         prevStation=line->get_station_list().getLast();                         //prevStation -> l'ultima stazione della linea
         nextStation=line->get_station_list().getLast()->getPrev();              //nextStation -> stazione precedente all'ultima
@@ -23,7 +23,7 @@ HighSpeedTrain::HighSpeedTrain(int ID, TrainDirection dir, TrainLine* l, TrainTi
     }
 }
 
-void HighSpeedTrain::callTrain(StationSignal si) {                              //chiamata alla stazione
+void SuperHighSpeedTrain::callTrain(StationSignal si){                         //chiamata alla stazione
     if(si==StationSignal::DEPARTURE_ALLOW){
 		if(direction==TrainDirection::FORWARD && distance != 0)          
 			nextStation = nextStation->getNext();
@@ -41,14 +41,13 @@ void HighSpeedTrain::callTrain(StationSignal si) {                              
 			prevStation=nextStation;
 			track=nullptr;
 			timer=-1;
-			
 		}
     }
 	else                                                                //treno in arrivo
 		parking=true;                                                   //treno si ferma in parcheggio
 }
 
-void HighSpeedTrain::clock(int t){
+void SuperHighSpeedTrain::clock(int t){
     time=timeConversion(t);                                             //conversione tempo
     if(direction==TrainDirection::FORWARD)                 
         distance+=currentSpeed/60.0;                                    //se il treno va avanti la distanza dall'origine aumenta
@@ -72,6 +71,7 @@ void HighSpeedTrain::clock(int t){
         nextMainStation->eventIncomingTrain(this, TrainRequest::STOP);
 	
     //treno si avvicina ad una stazione locale
+
     else if(!parking && fabs(nextStation->getDistance()-distance)<20 && track==nullptr && fabs(nextStation->getDistance()-distance)>15) 
 		nextStation->eventIncomingTrain(this, TrainRequest::TRANSIT);
     
@@ -105,10 +105,10 @@ void HighSpeedTrain::clock(int t){
         int delay=getDelay();
         if(delay>0)
             std::cout << "\nIl treno " << trainID << "e' arrivato alla stazione " << nextMainStation->getLabel() << " con " << delay << " minuti di ritardo\n\n";
-        timer=5;                        //parte il timer in cui il treno sta fermo in stazione
-        if(delay<0)                     //se il treno è in anticipo
+        timer=5;                            //parte il timer in cui il treno sta fermo in stazione
+        if(delay<0)                         //se il treno è in anticipo
             timer+= -delay;    
-        visitedStations++;              //aumenta il numero di stazioni visitate
+        visitedStations++;                  //aumenta il numero di stazioni visitate
     }
     if(timer>0){
         timer--;
