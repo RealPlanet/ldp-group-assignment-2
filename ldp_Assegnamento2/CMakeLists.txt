@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 project(ldp_Assegnamento2 C CXX)
-
+set(CMAKE_CXX_FLAGS "-O2 -EHsc")
 add_executable(main main.cpp)
 
 # Fabio
