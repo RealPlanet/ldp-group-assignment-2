@@ -6,9 +6,11 @@
 #include "..\include\TrainLine.h"
 #include "..\include\Station.h"
 #include "..\include\Train.h"
+
 #include <string>
 #include <sstream>
 #include <fstream>
+
 using std::isdigit;
 using std::vector;
 using std::string;

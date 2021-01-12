@@ -70,5 +70,8 @@ void run_simulation() {
 
 int main(int argc, char *argv[]) {
 	run_simulation();                                                        //Start the simulation
+	int t = 0;
+	std::cout << "Premi un tasto per continuare...\n";
+	std::cin >> t;
 	return 0;
 }
