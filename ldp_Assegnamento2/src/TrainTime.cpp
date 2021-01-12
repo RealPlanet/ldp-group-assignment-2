@@ -78,7 +78,7 @@ bool TrainTime::register_timetable(const std::string file_name, const TrainLine*
         // Se mancano orari vengono creati automaticamente
         while (newTrainInfo.m_train_times.size() < station_size)
         {
-            int actualTime = is_valid_time(trainNumber, trainStartingStation, 0, newTrainInfo.m_train_type, newTrainInfo.m_train_times, line);
+            int actualTime = is_valid_time(trainNumber, trainStartingStation, -1, newTrainInfo.m_train_type, newTrainInfo.m_train_times, line);
             newTrainInfo.m_train_times.push_back(actualTime);
         }
 
@@ -138,7 +138,7 @@ int TrainTime::is_valid_time(const int& train_number, const int& trainStartingSt
     {
         //Tempo minimo di un treno per arrivare alla stazione consideranto possibili rallentamenti e un margine di 10 minuti
         int newTime = (prevDepartureTime + (int)minTime + 10) / 60 * 100 + (prevDepartureTime + (int)minTime + 10) % 60;
-        std::cout << "[INFO] Nuovo tempo calcolato per treno numero: " << train_number << ", tempo cambiato da: " << time << " a " << newTime << std::endl;
+        if(time > 0) std::cout << "[INFO] Nuovo tempo calcolato per treno numero: " << train_number << ", tempo cambiato da: " << time << " a " << newTime << std::endl;
         return newTime;
     }
 }

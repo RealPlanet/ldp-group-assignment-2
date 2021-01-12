@@ -72,9 +72,9 @@ void RegionalTrain::clock(int t){
 
         int delay=getDelay();
         if(delay>0)
-            std::cout << "\nIl treno " << trainID << "e' arrivato alla stazione " << nextStation->getLabel() << "con " << delay << " minuti di ritardo, l'orario attuale e\'" << t << "\n\n";
+            std::cout << "\nIl treno " << trainID << " e' arrivato alla stazione " << nextStation->getLabel() << "con " << delay << " minuti di ritardo, l'orario attuale e\' " << t << "\n\n";
         else
-            std::cout << "\nIl treno " << trainID << "e' arrivato alla stazione " << nextStation->getLabel() << "senza ritardo, l'orario attuale e\'" << t << "\n\n";
+            std::cout << "\nIl treno " << trainID << " e' arrivato alla stazione " << nextStation->getLabel() << "senza ritardo, l'orario attuale e\' " << t << "\n\n";
 
 
         timer=5;                            //parte il timer in cui il treno sta fermo in stazione
