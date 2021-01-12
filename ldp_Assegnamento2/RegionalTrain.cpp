@@ -61,7 +61,7 @@ void RegionalTrain::clock(int t){
     //treno fermo in stazione
     if(timer==-1 && fabs(nextStation->getDistance()-distance)<0.67){
         currentSpeed=0;
-        if(visitedStations+1==line->get_station_list().iterable().size()-1){                    //se arrivo al capolinea
+        if((size_t)visitedStations+1==line->get_station_list().iterable().size()-1){                    //se arrivo al capolinea
                 endline=true;
                 track->update(TrackStatus::FREE);                                               //libero il binario
 				if (getDelay()>0)

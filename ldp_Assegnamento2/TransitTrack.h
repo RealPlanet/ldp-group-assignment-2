@@ -7,9 +7,12 @@
 
 #include "Track.h"
 
+/*
+* Implementa Track
+*/
 class TransitTrack : public Track
 {
-	TransitTrack() : Track(TrackType::TRANSIT) {}
+	TransitTrack() : Track(TrackType::TRANSIT) {} //Le funzioni base sono già implementate in track
 };
 
 #endif // !transittrack_h

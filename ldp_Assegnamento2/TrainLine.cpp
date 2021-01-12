@@ -35,12 +35,17 @@ bool TrainLine::register_stations(std::string file_name)
     bool isOriginStation = true; //Con questo bool posso includere la prima stazione (caso degenere con un solo dato nel loop)
     while (getline(stations, newLine)) //Prendi una riga dal file
     {
+        if (newLine == "") //Ferma la registrazione se si arriva ad una riga vuota (es. viene riga vuota alla fine del fine)
+        {
+            std::cout << "[INFO] Reached EOF for train description file \n";
+            break;
+        }
         stringstream ss{ newLine }; //Converti la ringa in uno stream
         string tempString;
         string station_name = "";
         int station_type = 1;
         int originDistance = 0;
-        bool invalidStation = false;
+        bool invalidStation = false; //Usato per determinare se una stazione è valida o meno
 
         //Ora nello stringstream rimangono solo gli orari quindi itero e salvo ogni orario come intero nel vettore
         while (ss >> tempString)
@@ -62,13 +67,13 @@ bool TrainLine::register_stations(std::string file_name)
                 }
                 else
                 {
+                    //Se la distanza di una stazione contiene una lettara prima di ogni numero non è possibile convertire a int
                     throw InvalidStationDistance();
                 }
             }
             else
             {
                 //Tutte le stringe fanno parte del nome della stazione
-                // TODO :: Rimuovere ultimo spazio quando si trova la distanza
                 station_name += tempString + " ";
             }
         }
@@ -76,7 +81,7 @@ bool TrainLine::register_stations(std::string file_name)
         //Se la stazione in considerazione non è valida, scartiamo tutto e non la inseriamo nella lista
         if (!invalidStation)
         {
-            if (isOriginStation)
+            if (isOriginStation) //Questa è la prima stazione, caso special che inizializza anche lal ista
             {
                 Station* originalStation = new MainStation(originDistance, station_name);
                 m_station_list = StationList();
@@ -85,6 +90,7 @@ bool TrainLine::register_stations(std::string file_name)
             }
             else
             {
+                //Genera la stazione in base al tipo
                 Station* newStation;
                 if (station_type)
                 {
@@ -103,6 +109,9 @@ bool TrainLine::register_stations(std::string file_name)
     return true;
 }
 
+/*
+* Calcola le distanze delle due stazioni successiva e precedente rispetto ad una stazione
+*/
 StationInfo TrainLine::get_station_distances(int station_number, int starting_station, TrainType type) const
 {
     StationInfo info = {};

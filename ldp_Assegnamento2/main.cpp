@@ -8,7 +8,11 @@
 void run_simulation() {
 	std::cout << "[WORKER] Generating the train line...\n\n";
 	TrainLine* line = new TrainLine;                                          //Generation of the train line
-	line->register_stations("line_description.txt");
+	if (!line->register_stations("line_description.txt"))
+	{
+		std::cout << "[INFO] No line_description.txt file was found in root folder \n";
+		return;
+	}
 	
 	std::cout << "[WORKER] " << line->get_station_list().iterable().size() << " stations have been generated: ";
 	for (Station* station : line->get_station_list().iterable()) std::cout << station->getLabel();
@@ -16,7 +20,11 @@ void run_simulation() {
 	
 	std::cout << "\n[WORKER] Generating the time tables...\n\n";
 	TrainTime* timetable = new TrainTime;                                     //Generation of the time tables
-	timetable->register_timetable("timetables.txt",line);
+	if (!timetable->register_timetable("timetables.txt", line))
+	{
+		std::cout << "[INFO] No timetables.txt file was found in root folder \n";
+		return;
+	}
 	
 	std::cout << "\n[WORKER] Generating the trains...\n\n";
 	
