@@ -83,14 +83,14 @@ int DeparturesTrainPQ::analyzeTime(Train* train) {
 		if (train->getTrainType() != TrainType::REGIONALE) {
 			Station* station = currentStation->getNext();
 			while (station->getStationType() != StationType::MAIN) station = station->getNext();
-			extraTime = (station->getDistance()-currentStation->getNext()->getDistance() -5)/train->getMaxSpeed()*62+5/80*60;
+			extraTime = (int)(station->getDistance()-currentStation->getNext()->getDistance() -5)/train->getMaxSpeed()*62+5/80*60;
 		}
 		return train->getNextArrivalTime()/100*60+train->getNextArrivalTime()%100-extraTime;
 	}
 	if (train->getTrainType() != TrainType::REGIONALE) {
 		Station* station = currentStation->getPrev();
 		while (station->getStationType() != StationType::MAIN) station = station->getPrev();
-		extraTime = (currentStation->getPrev()->getDistance()-station->getDistance() -5)/train->getMaxSpeed()*62+5/80*60;
+		extraTime = (int)(currentStation->getPrev()->getDistance()-station->getDistance() -5)/train->getMaxSpeed()*62+5/80*60;
 	}
 	return train->getNextArrivalTime()/100*60+train->getNextArrivalTime()%100-extraTime;
 } 

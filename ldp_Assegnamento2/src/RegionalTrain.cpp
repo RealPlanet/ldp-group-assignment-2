@@ -31,9 +31,9 @@ void RegionalTrain::clock(int t){
     time=timeConversion(t);                                         //conversione tempo
 
     if(direction==TrainDirection::FORWARD)                 
-        distance+=currentSpeed/60.0;                                //se il treno va avanti la distanza dall'origine aumenta
+        distance+=currentSpeed/60.0f;                                //se il treno va avanti la distanza dall'origine aumenta
     else
-        distance-=currentSpeed/60.0;                                //se il treno va indietro la distanza dall'origine diminuisce
+        distance-=currentSpeed/60.0f;                                //se il treno va indietro la distanza dall'origine diminuisce
     
     int arrivalTime=getArrivalTime();
 

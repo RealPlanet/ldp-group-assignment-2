@@ -82,7 +82,7 @@ bool TrainLine::register_stations(std::string file_name)
         {
             if (isOriginStation) //Questa è la prima stazione, caso special che inizializza anche lal ista
             {
-                Station* originalStation = new MainStation(originDistance, station_name);
+                Station* originalStation = new MainStation((float)originDistance, station_name);
                 m_station_list = StationList();
                 m_station_list.add(originalStation);
                 isOriginStation = false; //Ora riprendiamo comportamento normale
@@ -93,11 +93,11 @@ bool TrainLine::register_stations(std::string file_name)
                 Station* newStation;
                 if (station_type)
                 {
-                    newStation = new MainStation(originDistance, station_name);
+                    newStation = new MainStation((float)originDistance, station_name);
                 }
                 else
                 {
-                    newStation = new LocalStation(originDistance, station_name);
+                    newStation = new LocalStation((float)originDistance, station_name);
                 }
                 m_station_list.add(newStation);
             }  

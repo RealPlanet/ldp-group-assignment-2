@@ -200,11 +200,11 @@ void MainStation::callDepartures(LineWay* way) {
 	}
 	if (way->departures.getSize() != 0) {
 		int nextDistance = 0;
-		if (way == forward) nextDistance = getNext()->getDistance();
-		else nextDistance = getPrev()->getDistance();
+		if (way == forward) nextDistance = (int)getNext()->getDistance();
+		else nextDistance = (int)getPrev()->getDistance();
 		
-		int rawPrev = (abs(nextDistance-distance)-10)/way->lastTrain->getMaxSpeed()*60 + 5/stationSpeedLimit*60;
-		int rawNext = (abs(nextDistance-distance)-20)/way->departures.top()->getMaxSpeed()*60 + 5/stationSpeedLimit*60;
+		int rawPrev = (int)(abs(nextDistance-distance)-10)/way->lastTrain->getMaxSpeed()*60 + 5/stationSpeedLimit*60;
+		int rawNext = (int)(abs(nextDistance-distance)-20)/way->departures.top()->getMaxSpeed()*60 + 5/stationSpeedLimit*60;
 		
 		way->nextTime = way->lastTime+(rawPrev-rawNext);
 	}
@@ -275,19 +275,19 @@ void LocalStation::callDepartures(LineWay* way) {
 	}
 	if (way->departures.getSize() != 0) {
 		int nextDistance = 0;
-		if (way == forward) nextDistance = getNext()->getDistance();
-		else nextDistance = getPrev()->getDistance();
+		if (way == forward) nextDistance = (int)getNext()->getDistance();
+		else nextDistance = (int)getPrev()->getDistance();
 		
 		if (way->departures.top()->getTrainType() == TrainType::REGIONALE) {
-			int rawPrev = (fabs(nextDistance-distance)-10)/way->lastTrain->getMaxSpeed()*60 + 5/stationSpeedLimit*60;
-			int rawNext = (fabs(nextDistance-distance)-20)/way->departures.top()->getMaxSpeed()*60 + 5/stationSpeedLimit*60;
+			int rawPrev = (int)(fabs(nextDistance-distance)-10)/way->lastTrain->getMaxSpeed()*60 + 5/stationSpeedLimit*60;
+			int rawNext = (int)(fabs(nextDistance-distance)-20)/way->departures.top()->getMaxSpeed()*60 + 5/stationSpeedLimit*60;
 
 			way->nextTime = way->lastTime+(rawPrev-rawNext);
 			return;
 		}
 		else {
-			int rawPrev = (fabs(nextDistance-distance)-10)/way->lastTrain->getMaxSpeed()*60 + 5/stationSpeedLimit*60;
-			int rawNext = (fabs(nextDistance-distance)-10)/way->departures.top()->getMaxSpeed()*60;
+			int rawPrev = (int)(fabs(nextDistance-distance)-10)/way->lastTrain->getMaxSpeed()*60 + 5/stationSpeedLimit*60;
+			int rawNext = (int)(fabs(nextDistance-distance)-10)/way->departures.top()->getMaxSpeed()*60;
 			way->nextTime = way->lastTime+(rawPrev-rawNext);
 		}
 	}

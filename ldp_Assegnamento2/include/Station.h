@@ -5,8 +5,8 @@
 
 #include <string>
 #include <iostream>
-#include "..\include\generics.h"
-#include "..\include\TrainPQ.h"
+#include "generics.h"
+#include "TrainPQ.h"
 
 class Track;
 class Train;
