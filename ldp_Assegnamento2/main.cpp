@@ -45,11 +45,12 @@ void run_simulation() {
 	int time = 0;
 	while (trains.size() > 0) {                                              //The simulation keep running until there no more trains left
 	
+		/*
 		for (int index = trains.size()-1; index >= 0; index--) {
 			if (time%30==0)std::cout << "[" << (int)trains.at(index)->getDistance() << "]-" << trains.at(index)->getTrainID() << " ";
 		}
 		if (time%30==0)std::cout << "\n";
-		
+		*/
 		
 		for (int index = trains.size()-1; index >= 0; index--) {
 			trains.at(index)->clock(time/60*100+time%60);                    //Call each train to update their position
