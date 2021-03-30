@@ -1,4 +1,5 @@
 # ldp-group-assignment-2
+Assegnamento completato.
 
 Partecipanti:
 
